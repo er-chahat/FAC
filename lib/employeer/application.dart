@@ -392,36 +392,63 @@ class _ApplicationState extends State<Application> {
                     ),
                     child: Image(
                       image: NetworkImage("$photo/${vacancy["jop_image"]}"),
-                      height: 65,
-                      width: 50,
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(
+                          height: 60,
+                          width: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100], // Placeholder background color
+                            borderRadius: BorderRadius.circular(10), // Adjust as needed
+                          ),
+                          child: Icon(
+                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                            size: 30,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
+                      height: 60,
+                      width: 60,
                     ),
                   ),
                   SizedBox(width: 15),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        vacancy["open_position"],
-                        style: GoogleFonts.rubik(
-                            fontWeight: FontWeight.w400, fontSize: 12),
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        vacancy["location"],
-                        style: GoogleFonts.rubik(fontSize: 10),
-                      ),
-                      Text(
-                        "${vacancy["type"]}",
-                        style: GoogleFonts.rubik(
-                          color: Colors.grey,
-                          fontSize: 10,
+                      Container(
+                        width: MediaQuery.of(context).size.width/3.6,
+                        child: Text(
+                          vacancy["open_position"],
+                          style: GoogleFonts.rubik(
+                              fontWeight: FontWeight.w400, fontSize: 12),
                         ),
                       ),
-                      Text(
-                        "${vacancy["salary"]}",
-                        style: GoogleFonts.rubik(
-                          color: Colors.grey,
-                          fontSize: 10,
+                      SizedBox(height: 2),
+                      Container(
+                        width: MediaQuery.of(context).size.width/3.9,
+                        child: Text(
+                          vacancy["location"],
+                          style: GoogleFonts.rubik(fontSize: 10),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width/3.9,
+                        child: Text(
+                          "${vacancy["type"]}",
+                          style: GoogleFonts.rubik(
+                            color: Colors.grey,
+                            fontSize: 10,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        width: MediaQuery.of(context).size.width/4,
+                        child: Text(
+                          "${vacancy["salary"]=="/null"?"Not given":vacancy["salary"]}",
+                          style: GoogleFonts.rubik(
+                            color: Colors.grey,
+                            fontSize: 10,
+                          ),
                         ),
                       ),
                     ],

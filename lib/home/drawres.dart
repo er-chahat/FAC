@@ -17,6 +17,8 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../welcome/choose.dart';
+
 var go = "";
 
 class Drawres extends StatefulWidget {
@@ -54,7 +56,15 @@ class _DrawresState extends State<Drawres> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -103,7 +113,7 @@ class _DrawresState extends State<Drawres> {
     }
   }
   void startDownloading(var filename) async{
-    String url ='http://103.99.202.191/fac/cv/$filename';
+    String url ='http://110.173.135.111/fac/cv/$filename';
    // const String fileName="Doc8.docx";
     //print("file path ::: ::::::: ::::$fileName ");
     String path = await _getFilePaths(filename);
@@ -193,7 +203,7 @@ class _DrawresState extends State<Drawres> {
                       openAppSettings();
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("Open app Setting"),
                     ),
@@ -243,7 +253,7 @@ class _DrawresState extends State<Drawres> {
                       openAppSettings();
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("Open app Setting"),
                     ),
@@ -294,7 +304,7 @@ class _DrawresState extends State<Drawres> {
                     openAppSettings();
                   },
                   child: Container(
-                    color: Colors.green,
+                    color: Color(0xFF118743),
                     padding: const EdgeInsets.all(14),
                     child: const Text("Open app Setting"),
                   ),
@@ -361,7 +371,7 @@ class _DrawresState extends State<Drawres> {
                       });
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("open file"),
                     ),
@@ -418,7 +428,7 @@ class _DrawresState extends State<Drawres> {
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: isLoading
-              ? Center(child: CircularProgressIndicator(color: Colors.green[700],)) // Show a loading indicator while fetching resumes
+              ? Center(child: CircularProgressIndicator(color: Color(0xFF118743),)) // Show a loading indicator while fetching resumes
               : resumes.isNotEmpty
               ? Column(
             crossAxisAlignment: CrossAxisAlignment.start,

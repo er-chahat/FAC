@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'package:fac/employeer/post_chat.dart';
+import 'package:fac/employeer/time_slot.dart';
 import 'package:fac/home/Userbottom.dart';
 import 'package:fac/home/mainprofile.dart';
 import 'package:fac/home/wel.dart';
 import 'package:fac/starting/splashscreen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
@@ -39,6 +41,64 @@ class _UsermsgState extends State<Usermsg> {
 
   Timer? timers;
   Timer? timersPost;
+  UpdateSlot(String date,String time,String status_id) async {
+    HashMap<String, String> map = HashMap();
+    map["updte"] = "1";
+    map["user_id"] = user_id;
+    map["user_applicants_status_id"] = status_id;
+    map["schedule_date"] = date;
+    map["schedule_time"] = time;
+
+    var res = await http.post(
+        Uri.parse("$mainurl/user_interview_slot_update.php"),
+        body: jsonEncode(map));
+
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("Mapped::::::$map");
+    print(jsondata);
+
+    if (res.statusCode == 200) {
+      setState(() {
+        userer=jsondata["error"].toString();
+      });
+      print("::::::::::::::::::::::::::::::::      ::::::::::::::::::::::::: ${userer}");
+      if (jsondata["error"] == 0) {
+        Fetchdata();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Slot Booked Successfully"),
+            duration: Duration(seconds: 2),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+
+      } else {
+        // ScaffoldMessenger.of(context).showSnackBar(
+        //   SnackBar(
+        //     content: Text("You have applied no-where yet"),
+        //     duration: Duration(seconds: 2),
+        //     shape: RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(40)),
+        //   ),
+        // );
+        // Future.delayed(Duration(seconds: 1),(){
+        //  // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Mainprofile(),), (route) => false);
+        //  // Navigator.pop(context);
+        // });
+
+      }
+    } else {
+      print('Error: ${res.statusCode}');
+    }
+  }
+
+  void callback(String s,String b,String c){
+    setState(() {
+      UpdateSlot(s, b,c);
+    });
+  }
 
   @override
   void initState() {
@@ -133,7 +193,7 @@ class _UsermsgState extends State<Usermsg> {
             begin: Alignment.topLeft,
             end: Alignment.bottomLeft,
             colors: [
-              Colors.green.shade800,
+              Color(0xFF118743),
               Color(0xFF6E9677),
             ],
           ):LinearGradient(
@@ -262,6 +322,7 @@ class _UsermsgState extends State<Usermsg> {
       print("::::::::::::::::::::::::::::::::      ::::::::::::::::::::::::: ${userer}");
       if (jsondata["error"] == 0) {
         if (jsondata["user_applied_jop"] != null) {
+          print("hello hii  $jsondata");
           setState(() {
             postPeoplist = jsondata["user_applied_jop"];
           });
@@ -291,7 +352,7 @@ class _UsermsgState extends State<Usermsg> {
 
     if(ohmsg["status"]=="Selected"){
       setState(() {
-        textColor=Colors.green;
+        textColor=Color(0xFF118743);
       });
     }
     if(ohmsg["status"]=="Rejected"){
@@ -368,17 +429,33 @@ class _UsermsgState extends State<Usermsg> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Row(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(12.0),
+              child: Row(
                 children: [
                   Container(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(50),
                       child: Image(
                         image: NetworkImage("$photo/${ohmsg["company_logo"]}"),
+
+                        errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                          return Container(
+                            height: 55,
+                            width: 55,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200], // Placeholder background color
+                              borderRadius: BorderRadius.circular(8), // Adjust as needed
+                            ),
+                            child: Icon(
+                              Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                              size: 30,
+                              color: Colors.grey[400],
+                            ),
+                          );
+                        },
                         height: 65,
                         width: 65,
                         fit: BoxFit.cover,
@@ -422,6 +499,8 @@ class _UsermsgState extends State<Usermsg> {
                             ohmsg["email_id"],
                             style: GoogleFonts.rubik(fontSize: 12),
                           ),
+
+
                       ],
                     ),
                   ),
@@ -429,14 +508,32 @@ class _UsermsgState extends State<Usermsg> {
                   Container(
                     child: Column(
                       children: [
-                        SizedBox(height: 2,),
+                        if(ohmsg["status"] == "Interview")
+                        InkWell(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>TimeSlots(callback: callback, emp_id: ohmsg["employer_id"],status_id: ohmsg["user_applicants_status_id"],)));
+                          },
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: ohmsg["schedule_date"]==null?textColor:Color(0xFF118743)
+                            ),
+                            child:Padding(
+                              padding: const EdgeInsets.only(top: 8.0,bottom: 8,left: 12,right: 12),
+                              child: Text( ohmsg["schedule_date"]==null?"Select Slot":"Update Slot",
+                                style: GoogleFonts.rubik(
+                                    fontWeight: FontWeight.w500, fontSize: 10,color: Colors.white),),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 10,),
                           Row(
                             children: [
                               if(ohmsg["total_messages"]!="0")
                                 Container(
                                   padding: EdgeInsets.all(3),
                                   decoration: BoxDecoration(
-                                    color: Colors.green,
+                                    color: Color(0xFF118743),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   constraints: BoxConstraints(
@@ -480,8 +577,32 @@ class _UsermsgState extends State<Usermsg> {
                   )
                 ],
               ),
-            ],
-          ),
+            ),
+            if(ohmsg["status"] == "Interview" && ohmsg["schedule_date"] != null)
+              Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(topLeft :Radius.circular(6),topRight: Radius.circular(6)),
+                border: Border.all(width: 1,color: Color(0xFF118743))
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(4.0),
+                child: RichText(
+                  text: TextSpan(
+                    text: 'Interview Time : ',
+                    style:TextStyle(fontWeight: FontWeight.w400,fontSize: 14,color: Colors.black),
+                    children: [
+                      WidgetSpan(
+                          child: SizedBox(
+                            width: 4, // your of space
+                          )),
+                      TextSpan(text: '${ohmsg["schedule_date"]==null?"":ohmsg["schedule_date"]} , ${ohmsg["schedule_time"]==null?"":ohmsg["schedule_time"]}', style: TextStyle(fontWeight: FontWeight.w600,fontSize: 14,color: Colors.black)),
+                    ],
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+            )
+          ],
         ),
       ),
     );
@@ -508,7 +629,7 @@ class _UsermsgState extends State<Usermsg> {
 
     return GestureDetector(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>PostChat(jobPostId: ohmsg["job_seeker_post_id"], name: ohmsg["company_name"], emp: null, profile: ohmsg["company_logo"],isEmployer: false,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>PostChat(jobPostId: ohmsg["job_seeker_post_id"], name: ohmsg["company_name"], emp: null, profile: ohmsg["company_logo"],isEmployer: false,emp_id: ohmsg["employer_id"],)));
         //Navigator.pushNamed(context, "usermain");
       },
       child: Container(
@@ -536,6 +657,21 @@ class _UsermsgState extends State<Usermsg> {
                       borderRadius: BorderRadius.circular(50),
                       child: Image(
                         image: NetworkImage("$photo/${ohmsg["company_logo"]}"),
+                        errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                          return Container(
+                            height: 55,
+                            width: 55,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200], // Placeholder background color
+                              borderRadius: BorderRadius.circular(8), // Adjust as needed
+                            ),
+                            child: Icon(
+                              Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                              size: 30,
+                              color: Colors.grey[400],
+                            ),
+                          );
+                        },
                         height: 65,
                         width: 65,
                         fit: BoxFit.cover,
@@ -552,7 +688,7 @@ class _UsermsgState extends State<Usermsg> {
                       children: [
                         if(ohmsg["company_name"] != null)
                           Text(
-                            ohmsg["company_name"],
+                            "${ohmsg["company_name"]}",
                             style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 14),
                           ),
                         if (ohmsg["company_user_name"] != null)
@@ -581,7 +717,7 @@ class _UsermsgState extends State<Usermsg> {
                                 Container(
                                   padding: EdgeInsets.all(3),
                                   decoration: BoxDecoration(
-                                    color: Colors.green,
+                                    color: Color(0xFF118743),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   constraints: BoxConstraints(

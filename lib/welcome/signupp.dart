@@ -42,6 +42,12 @@ class _SignuppState extends State<Signupp> {
   var otp="";
 
   bool vertical = false;
+  String selectedValues = '';
+  bool saveOrNot = false;
+  List<String> _options =[];
+  List<String>  _option2 =[];
+  String codepin = '';
+  final TextEditingController _serchController = TextEditingController();
 
   Color radioColor = Colors.grey;
   String selectedOption = 'No';
@@ -82,7 +88,48 @@ class _SignuppState extends State<Signupp> {
     token = fcmtoken.toString();
     print("\n\n\n\nTemp Token in signup::::::::$token\n\n\n\n\n\n");
   }
+  searchapi(String value, String? state) async{
+    HashMap<String, dynamic> map = HashMap();
+    map["updte"] = "1";
+    map["state"] = state!;
+    map["city"] = value;
 
+    var res = await http.post(Uri.parse("$mainurl/location_city_search.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("harleen $map");
+    print(jsondata);
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      print("hello api search data is $jsondata");
+      //List<dynamic> skillsList = jsondata["user_skills"];
+      //           setState(() {
+      //             userSkills = skillsList.map((skill) => skill["state"].toString()).toList();
+      //             locselected=userSkills[0];
+      //           });
+      if(er==0){
+        List<dynamic> all = jsondata["location"] ;
+        setState(() {
+          _options = all.map((alldat)=> alldat["city"].toString()).toList();
+          _option2 = all.map((alldat)=> alldat["pincode"].toString()).toList();
+        });
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went worng"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    } else {
+      print('error');
+    }
+
+  }
   @override
   void initState() {
     dateInput.text = "";
@@ -165,6 +212,7 @@ class _SignuppState extends State<Signupp> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Company Name",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -207,6 +255,7 @@ class _SignuppState extends State<Signupp> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Person InCharge Name",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -250,6 +299,7 @@ class _SignuppState extends State<Signupp> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Position",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -293,6 +343,7 @@ class _SignuppState extends State<Signupp> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Company Email",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -322,6 +373,7 @@ class _SignuppState extends State<Signupp> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Company Phone",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                           counterText: "",
                         ),
                         initialCountryCode: 'AU',
@@ -339,7 +391,6 @@ class _SignuppState extends State<Signupp> {
                         },
                       ),
                     ),
-
                     SizedBox(
                       height: 10,
                     ),
@@ -380,6 +431,7 @@ class _SignuppState extends State<Signupp> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Company Address",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -443,56 +495,152 @@ class _SignuppState extends State<Signupp> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 8,right: 8),
-                      child: TextFormField(
-                        readOnly: true,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          suffixIcon: Padding(
-                            padding: const EdgeInsets.only(left: 15),
-                            child: DropdownButton<String>(
-                              isExpanded: true,
-
-                              style: TextStyle(fontSize: 14, color: Colors.black),
-                              hint: Text("Suburb", style: TextStyle(color: Colors.grey)),
-                              value: pinselected,
-                              onChanged: (selectedItem) {
-                                setState(() {
-                                  this.pinselected = selectedItem!;
-                                  print(selectedItem);
-                                });
+                      child: Container(
+                        height: 50,
+                        child: TextFormField(
+                          controller: _serchController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            suffixIcon: Autocomplete<String>(
+                              optionsBuilder: (TextEditingValue textEditingValue) async {
+                                if (textEditingValue.text.isEmpty) {
+                                  return const Iterable<String>.empty();
+                                }
+                                await searchapi(textEditingValue.text, locselected);
+                                return _options;
                               },
-                              items: userSkillss
-                                  .map((String item) => DropdownMenuItem(
-                                value: item,
-                                child: Text(item),
-                              ))
-                                  .toList(),
-                              icon: Padding(
-                                padding: EdgeInsets.only(left: 20),
-                                child: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Colors.grey,
-                                ),
-                              ),
+                              onSelected: (String selection) {
+                                setState(() {
+                                  _serchController.text = selection;
+                                  int index = _options.indexOf(selection);
+                                  selectedValues = selection;
+                                  codepin = _option2[index];
+                                });
+                                print('You selected: $selection');
+                              },
+                              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                return TextFormField(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  style: GoogleFonts.rubik(),
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                                    hintText: "Search Suburb",
+                                    hintStyle: GoogleFonts.rubik(color: Colors.grey),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onFieldSubmitted: (value) {
+                                    onFieldSubmitted();
+                                  },
+                                );
+                              },
+                              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                                return Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Material(
+                                    elevation: 4.0,
+                                    child: Container(
+                                      height: 200.0,
+                                      color: Colors.white,
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.all(8.0),
+                                        itemCount: options.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          final String option = options.elementAt(index);
+                                          return GestureDetector(
+                                            onTap: () {
+                                              onSelected(option);
+                                            },
+                                            child: ListTile(
+                                              title: Text("$option (${_option2[index]})"),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
                       ),
                     ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(left: 8,right: 8),
+                    //   child: TextFormField(
+                    //     readOnly: true,
+                    //     decoration: InputDecoration(
+                    //       filled: true,
+                    //       fillColor: Colors.white,
+                    //       contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                    //       enabledBorder: OutlineInputBorder(
+                    //         borderSide: BorderSide(color: Colors.grey),
+                    //         borderRadius: BorderRadius.circular(10),
+                    //       ),
+                    //       focusedBorder: OutlineInputBorder(
+                    //         borderSide: BorderSide(color: Colors.grey),
+                    //         borderRadius: BorderRadius.circular(10),
+                    //       ),
+                    //       border: OutlineInputBorder(
+                    //         borderSide: BorderSide(color: Colors.grey),
+                    //         borderRadius: BorderRadius.circular(10),
+                    //       ),
+                    //       suffixIcon: Padding(
+                    //         padding: const EdgeInsets.only(left: 15),
+                    //         child: DropdownButton<String>(
+                    //           isExpanded: true,
+                    //
+                    //           style: TextStyle(fontSize: 14, color: Colors.black),
+                    //           hint: Text("Suburb", style: TextStyle(color: Colors.grey)),
+                    //           value: pinselected,
+                    //           onChanged: (selectedItem) {
+                    //             setState(() {
+                    //               this.pinselected = selectedItem!;
+                    //               print(selectedItem);
+                    //             });
+                    //           },
+                    //           items: userSkillss
+                    //               .map((String item) => DropdownMenuItem(
+                    //             value: item,
+                    //             child: Text(item),
+                    //           ))
+                    //               .toList(),
+                    //           icon: Padding(
+                    //             padding: EdgeInsets.only(left: 20),
+                    //             child: Icon(
+                    //               Icons.keyboard_arrow_down,
+                    //               color: Colors.grey,
+                    //             ),
+                    //           ),
+                    //         ),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                    SizedBox(height: 10,),
                     Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8),
@@ -545,6 +693,7 @@ class _SignuppState extends State<Signupp> {
                             },
                           ),
                           hintText: "Password",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -563,7 +712,7 @@ class _SignuppState extends State<Signupp> {
                           });
                         },
 
-                        style: GoogleFonts.montserrat(),
+                        style: GoogleFonts.rubik(),
                         validator: (value) {
                           if (value!.isEmpty) {
                             return 'This field is required';
@@ -602,6 +751,7 @@ class _SignuppState extends State<Signupp> {
                             },
                           ),
                           hintText: "Re-enter Password",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -761,6 +911,7 @@ class _SignuppState extends State<Signupp> {
 
   }
   Sign(context) async{
+    print("hello i am call $codepin && and $selectedValues");
     List<String> parts = pinselected!.split('(');
     String name = parts[0];
     String code = parts[1].replaceAll(')', '');
@@ -775,8 +926,8 @@ class _SignuppState extends State<Signupp> {
     map["privacy_policy"] = selectedOption.toString();
     map["password"] = passcontroller.text;
     map["state"]=locselected.toString();
-    map["city"]=name.toString();
-    map["pincode"]=code.toString();
+    map["city"]=selectedValues;
+    map["pincode"]=codepin;
     map["user_type"]=type.toString();
     map["fcm_token"]=token.toString();
 

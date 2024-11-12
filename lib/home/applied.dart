@@ -14,6 +14,9 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../welcome/choose.dart';
+import 'de.dart';
 class Applied extends StatefulWidget {
   const Applied({super.key});
 
@@ -25,6 +28,7 @@ class _AppliedState extends State<Applied> {
 
   var rowww="";
   bool _isLoading = true;
+  var showsub = false;
 
   List<dynamic> peoplist = [];
 
@@ -34,6 +38,47 @@ class _AppliedState extends State<Applied> {
   String downloading ="0.0";
 
   var membert="";
+  Future<void> showSub(BuildContext context) async {
+    print("hi");
+    HashMap<String, String> map = HashMap();
+    map["updte"] = "1";
+
+    var res = await http.post(Uri.parse("$mainurl/subscription_switch.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("::::::::::::::::$jsondata");
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      if (er == 0) {
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
+          setState(() {
+            showsub=true;
+          });
+        }else{
+          setState(() {
+            showsub=false;
+          });
+        }
+
+      } else {
+        // if(userPorti.isNotEmpty){
+        //   userPorti.clear();
+        //   portfolioImages.clear();
+        // }
+      }
+    } else {
+      print('error');
+    }
+  }
   void callback_mem(var data){
     setState(() {
       membershipDetails(context);
@@ -68,7 +113,7 @@ class _AppliedState extends State<Applied> {
   }
 
   void startDownloading(var filename) async{
-    String url ='http://103.99.202.191/fac/cv/$filename';
+    String url ='http://110.173.135.111/fac/cv/$filename';
     // const String fileName="Doc8.docx";
     //print("file path ::: ::::::: ::::$fileName ");
     String path = await _getFilePaths(filename);
@@ -158,7 +203,7 @@ class _AppliedState extends State<Applied> {
                       openAppSettings();
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("Open app Setting"),
                     ),
@@ -208,7 +253,7 @@ class _AppliedState extends State<Applied> {
                       openAppSettings();
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("Open app Setting"),
                     ),
@@ -259,7 +304,7 @@ class _AppliedState extends State<Applied> {
                     openAppSettings();
                   },
                   child: Container(
-                    color: Colors.green,
+                    color: Color(0xFF118743),
                     padding: const EdgeInsets.all(14),
                     child: const Text("Open app Setting"),
                   ),
@@ -325,7 +370,7 @@ class _AppliedState extends State<Applied> {
                       });
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("open file"),
                     ),
@@ -339,6 +384,7 @@ class _AppliedState extends State<Applied> {
   }
   @override
   void initState() {
+    showSub(context);
     checkPermisson();
     membershipDetails(context);
     peopleapplied(context);
@@ -362,7 +408,7 @@ class _AppliedState extends State<Applied> {
       ),
       body:  _isLoading
           ? Center(
-          child: CircularProgressIndicator(color: Colors.green[700],),
+          child: CircularProgressIndicator(color: Color(0xFF118743),),
       )
           :SingleChildScrollView(
         child: Column(
@@ -477,6 +523,21 @@ class _AppliedState extends State<Applied> {
                           child: Image(
                             image:
                             NetworkImage("$photo/${peopc["profile_img"]}"),
+                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              return Container(
+                                height: 55,
+                                width: 55,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200], // Placeholder background color
+                                  borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                ),
+                                child: Icon(
+                                  Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                  size: 30,
+                                  color: Colors.grey[400],
+                                ),
+                              );
+                            },
                             height: 65,
                             width: 65,
                             fit: BoxFit.cover,
@@ -495,9 +556,13 @@ class _AppliedState extends State<Applied> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(peopc["name"],style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 15),),
+                      Container(
+                          width: MediaQuery.of(context).size.width/2,
+                          child: Text(peopc["name"],style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 15),)),
 
-                      Text("For:${peopc["open_position"]}",style: GoogleFonts.rubik(color: Colors.grey,fontSize: 13),),
+                      Container(
+                          width: MediaQuery.of(context).size.width/2,
+                          child: Text("For:${peopc["open_position"]}",style: GoogleFonts.rubik(color: Colors.grey,fontSize: 13),)),
                     ],
                   ),
                   Spacer(flex: 2,),
@@ -522,7 +587,7 @@ class _AppliedState extends State<Applied> {
 
 
 
-                      }, icon: Icon(Icons.mail,color: Colors.green,),),
+                      }, icon: Icon(Icons.mail,color: Color(0xFF118743),),),
                     ),
                   )
                 ],
@@ -568,31 +633,40 @@ class _AppliedState extends State<Applied> {
                                 borderRadius: BorderRadius.circular(10),
                                 side: BorderSide(color: Color(0xFF118743)),)),
                           onPressed: () {
-                            if(membert !=""){
-                              if(membert == "Paid"){
-                                setState(() {
-                                  iid=peopc["user_apply_jop_id"];
-                                  applicant_id = peopc["applicant_id"];
-                                });
-                                viewdetails(context);
-                              }else{
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        "To See details buy Subscription"),
-                                    duration: Duration(seconds: 2),
-                                    shape:
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(
-                                            40)),
-                                  ),
-                                );
-                                Navigator.push(context,
-                                    MaterialPageRoute(
-                                        builder: (context) =>
-                                            Subscription(
-                                                callback: callback_mem)));
+                            if(showsub == true) {
+                              if (membert != "") {
+                                if (membert == "Paid") {
+                                  setState(() {
+                                    iid = peopc["user_apply_jop_id"];
+                                    applicant_id = peopc["applicant_id"];
+                                  });
+                                  viewdetails(context,peopc["category_id"],peopc["applicant_id"]);
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          "To See details buy Subscription"),
+                                      duration: Duration(seconds: 2),
+                                      shape:
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                              40)),
+                                    ),
+                                  );
+                                  Navigator.push(context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              Subscription(
+                                                  callback: callback_mem)));
+                                }
                               }
+                            }else{
+                              setState(() {
+                                iid = peopc["user_apply_jop_id"];
+                                applicant_id = peopc["applicant_id"];
+                              });
+                              viewdetails(context,peopc["category_id"],peopc["applicant_id"]);
+
                             }
                           },
                           child: Text(
@@ -645,7 +719,7 @@ class _AppliedState extends State<Applied> {
     }
   }
 
-  viewdetails(context) async {
+  viewdetails(context,var cate_id,var userid) async {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
     map["user_apply_jop_id"] = iid.toString();
@@ -661,8 +735,8 @@ class _AppliedState extends State<Applied> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-
-        Navigator.pushNamed(context, "de");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>De(cate: cate_id,user_id: userid,)));
+        // Navigator.pushNamed(context, "de");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

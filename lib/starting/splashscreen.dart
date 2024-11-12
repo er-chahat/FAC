@@ -7,14 +7,13 @@ import 'package:fac/welcome/choose.dart';
 import 'package:fac/welcome/fetchdata.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-var mainurl="http://103.99.202.191/fac/api";
-var photo = "http://103.99.202.191/fac/img";
-var photos="http://103.99.202.191/fac/images/";
-var c_v="http://103.99.202.191/fac/cv";
-var d_c="http://103.99.202.191/fac/documents";
+var mainurl="http://110.173.135.111/fac/api";
+var photo = "http://110.173.135.111/fac/img";
+var photos="http://110.173.135.111/fac/images/";
+var c_v="http://110.173.135.111/fac/cv";
+var d_c="http://110.173.135.111/fac/documents";
 
 var user_id = "";
 var session_id = "";
@@ -29,28 +28,28 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final homeScaffoldKey = GlobalKey<ScaffoldState>();
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
+  // FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  // FlutterLocalNotificationsPlugin();
 
-  Future<void> requestNotificationPermission() async {
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.requestNotificationsPermission();
-    print("hnji");
-  }
+  // Future<void> requestNotificationPermission() async {
+  //   await flutterLocalNotificationsPlugin
+  //       .resolvePlatformSpecificImplementation<
+  //       AndroidFlutterLocalNotificationsPlugin>()
+  //       ?.requestNotificationsPermission();
+  //   print("hnji");
+  // }
 
   @override
   void initState() {
     super.initState();
     fetchData();
-    requestNotificationPermission();
-    LocalNotificationService.initialize(context, RemoteMessage());
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        LocalNotificationService.display(message);
-      }
-    });
+    //requestNotificationPermission();
+    // LocalNotificationService.initialize(context, RemoteMessage());
+    // FirebaseMessaging.instance.getInitialMessage().then((message) {
+    //   if (message != null) {
+    //     LocalNotificationService.display(message);
+    //   }
+    // });
 
     FirebaseMessaging.onMessage.listen((message) async {
       if (message.notification != null) {
@@ -61,7 +60,7 @@ class _SplashScreenState extends State<SplashScreen> {
         print("11111111111111111111111111111111111");
         print(message.notification!.body);
       }
-      LocalNotificationService.display(message);
+      //LocalNotificationService.display(message);
     });
 
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
@@ -69,7 +68,7 @@ class _SplashScreenState extends State<SplashScreen> {
       print('Notification tap ahib c message: ${message.notification!.body}');
       print("shubhpreet");
 
-      LocalNotificationService.display(message);
+     // LocalNotificationService.display(message);
 
       print("shubhpreet hundal");
     });

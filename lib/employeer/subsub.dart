@@ -80,7 +80,7 @@ class _SubsubState extends State<Subsub> {
             ),
             actions: <Widget>[
               TextButton(
-                child: Text('Continue',style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 20,color: Colors.green[700]),),
+                child: Text('Continue',style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 20,color: Color(0xFF118743)),),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -132,7 +132,7 @@ class _SubsubState extends State<Subsub> {
       body:
       _isLoading
           ? Center(
-        child: CircularProgressIndicator(color: Colors.green[700],),
+        child: CircularProgressIndicator(color: Color(0xFF118743),),
       )
           :SingleChildScrollView(
         child: Padding(
@@ -154,6 +154,21 @@ class _SubsubState extends State<Subsub> {
                   children: [
                     Image(
                       image: NetworkImage("$photos$ig"),
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(
+                          height: 55,
+                          width: 55,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200], // Placeholder background color
+                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                          ),
+                          child: Icon(
+                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                            size: 30,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
                       height: 120,
                       width: 120,
                     ),
@@ -174,7 +189,7 @@ class _SubsubState extends State<Subsub> {
                           Text(subpr,style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 20,),),
                         if(subpr!="Free")
                           Text("\$$subpr",style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 20),),
-                        Text("/$subday Days",style: GoogleFonts.rubik(color: Colors.green,fontSize: 10),)
+                        Text("/$subday Days",style: GoogleFonts.rubik(color: Color(0xFF118743),fontSize: 10),)
                       ],
                     ),
                   
@@ -191,7 +206,7 @@ class _SubsubState extends State<Subsub> {
                           return ListTile(
                             leading: Icon(
                               Icons.check_circle,
-                              color: Colors.green,
+                              color: Color(0xFF118743),
                             ),
                             title: Text(
                               subscriptionContent['content'],
@@ -259,7 +274,7 @@ class _SubsubState extends State<Subsub> {
                         width: double.infinity,
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
+                            backgroundColor: Color(0xFF118743),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                             ),
@@ -441,7 +456,7 @@ class _SubsubState extends State<Subsub> {
           ),
           actions: <Widget>[
             TextButton(
-              child: Text('Continue',style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 20,color: Colors.green[700]),),
+              child: Text('Continue',style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 20,color: Color(0xFF118743)),),
               onPressed: () {
                 Navigator.of(context).pop();
                 StripeService().makePayment(

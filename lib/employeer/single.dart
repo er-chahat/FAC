@@ -16,6 +16,9 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../home/de.dart';
+import '../welcome/choose.dart';
+
 var uuser="";
 
 class Single extends StatefulWidget {
@@ -35,6 +38,7 @@ class _SingleState extends State<Single> {
   Dio dio =Dio();
   double prog =0.0;
   String downloading="0";
+  var category;
 
   var showsub = false;
 
@@ -51,7 +55,15 @@ class _SingleState extends State<Single> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -104,7 +116,7 @@ class _SingleState extends State<Single> {
     }
   }
   void startDownloading(var filename) async{
-    String url ='http://103.99.202.191/fac/cv/$filename';
+    String url ='http://110.173.135.111/fac/cv/$filename';
     // const String fileName="Doc8.docx";
     //print("file path ::: ::::::: ::::$fileName ");
     String path = await _getFilePaths(filename);
@@ -194,7 +206,7 @@ class _SingleState extends State<Single> {
                       openAppSettings();
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("Open app Setting"),
                     ),
@@ -244,7 +256,7 @@ class _SingleState extends State<Single> {
                       openAppSettings();
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("Open app Setting"),
                     ),
@@ -295,7 +307,7 @@ class _SingleState extends State<Single> {
                     openAppSettings();
                   },
                   child: Container(
-                    color: Colors.green,
+                    color: Color(0xFF118743),
                     padding: const EdgeInsets.all(14),
                     child: const Text("Open app Setting"),
                   ),
@@ -361,7 +373,7 @@ class _SingleState extends State<Single> {
                       });
                     },
                     child: Container(
-                      color: Colors.green,
+                      color: Color(0xFF118743),
                       padding: const EdgeInsets.all(14),
                       child: const Text("open file"),
                     ),
@@ -402,7 +414,7 @@ class _SingleState extends State<Single> {
       body: _isLoading
           ? Center(
         child: CircularProgressIndicator(
-          color: Colors.green[700],
+          color: Color(0xFF118743),
         ),
       )
           : peoplist.isNotEmpty
@@ -458,9 +470,8 @@ class _SingleState extends State<Single> {
         body: jsonEncode(map));
     print(res.body);
     dynamic jsondata = jsonDecode(res.body);
-    print("Mapped::::::$map");
+    print("Mapped::::: pepoplis map data :$map");
     print(jsondata);
-
 
     if (res.statusCode == 200) {
       if(jsondata["error"]==0) {
@@ -469,6 +480,7 @@ class _SingleState extends State<Single> {
           if(jsondata["rows"]!=null||jsondata["rows"]!=0) {
             setState(() {
               peoplist = jsondata["people_jop_applied_list"];
+              category=jsondata["0"]["category_id"];
             });
           }else{
             peoplist=[];
@@ -481,6 +493,7 @@ class _SingleState extends State<Single> {
       }else{
         setState(() {
           _isLoading=false;
+          peoplist=[];
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -552,6 +565,21 @@ class _SingleState extends State<Single> {
                           child: Image(
                             image:
                             NetworkImage("$photo/${peopc["profile_img"]}"),
+                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              return Container(
+                                height: 55,
+                                width: 55,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200], // Placeholder background color
+                                  borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                ),
+                                child: Icon(
+                                  Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                  size: 30,
+                                  color: Colors.grey[400],
+                                ),
+                              );
+                            },
                             height: 55,
                             width: 55,
                             fit: BoxFit.cover,
@@ -745,7 +773,7 @@ class _SingleState extends State<Single> {
 
 
 
-                      }, icon: Icon(Icons.mail,color: Colors.green,),),
+                      }, icon: Icon(Icons.mail,color: Color(0xFF118743),),),
                     ),
                   ),
                   Padding(
@@ -767,7 +795,7 @@ class _SingleState extends State<Single> {
                                     iid = peopc["user_apply_jop_id"];
                                     uuser = peopc["user_id"];
                                   });
-                                  viewdetails(context);
+                                  viewdetails(context,peopc["category_id"],peopc["applicant_id"]);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
@@ -790,8 +818,9 @@ class _SingleState extends State<Single> {
                               setState(() {
                                 iid = peopc["user_apply_jop_id"];
                                 uuser = peopc["user_id"];
+                                applicant_id=peopc["user_id"];
                               });
-                              viewdetails(context);
+                              viewdetails(context,"$category",peopc["user_id"]);
                             }
                           },
                           child: Text(
@@ -843,7 +872,7 @@ class _SingleState extends State<Single> {
     }
   }
 
-  viewdetails(context) async {
+  viewdetails(context,var cate_id,var userid) async {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
     map["user_apply_jop_id"] = iid.toString();
@@ -859,7 +888,9 @@ class _SingleState extends State<Single> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        Navigator.pushNamed(context, "de");
+        // Navigator.pushNamed(context, "de");
+        print("print user id $userid && cate $cate_id");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>De(cate: cate_id,user_id: userid,)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

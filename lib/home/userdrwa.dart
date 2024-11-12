@@ -1,6 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
 import 'package:fac/home/subb.dart';
+import 'package:fac/home/user_faq.dart';
 import 'package:fac/welcome/login.dart';
 import 'package:http/http.dart' as http;
 import 'package:fac/home/Userbottom.dart';
@@ -52,6 +53,7 @@ class _UserdrwaState extends State<Userdrwa> {
     }
   }
   Future<void> Delete(BuildContext context) async {
+    var prefs = await SharedPreferences.getInstance();
     print("hi");
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
@@ -66,6 +68,7 @@ class _UserdrwaState extends State<Userdrwa> {
     if (res.statusCode == 200) {
       if (er == 0) {
         setState(() {
+          prefs.setBool(LoginState.LOGIN,false);
           logout();
         });
       } else {
@@ -91,7 +94,15 @@ class _UserdrwaState extends State<Userdrwa> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -357,7 +368,7 @@ class _UserdrwaState extends State<Userdrwa> {
                 Divider(),
                 GestureDetector(
                   onTap: () {
-                   delete();
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>UserFAQ()));
                   },
                   child: Padding(
                     padding: const EdgeInsets.all(5.0),
@@ -368,23 +379,29 @@ class _UserdrwaState extends State<Userdrwa> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: Color(0xFFF9EDED),
+                              color: Color(0xFFEDF9F0),
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Icon(Icons.delete, color: Color(0xFFD31212),),
+                              child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("assets/faq.png"),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                           SizedBox(
                             width: 20,
                           ),
                           Text(
-                            "Delete Account",
+                            "FAQ",
                             style: GoogleFonts.rubik(
-                                fontSize: 18,
-                                color: Color(0xFFD31212),
-                                fontWeight: FontWeight.w500),
+                                fontSize: 18, fontWeight: FontWeight.w500),
                           )
                         ],
                       ),
@@ -392,6 +409,129 @@ class _UserdrwaState extends State<Userdrwa> {
                   ),
                 ),
                 Divider(),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, "tnc");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Container(
+                      width: double.infinity,
+                      color: Colors.transparent,
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFEDF9F0),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("assets/tnc.png"),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            "Terms & Conditions",
+                            style: GoogleFonts.rubik(
+                                fontSize: 18, fontWeight: FontWeight.w500),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Divider(),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, "pp");
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(5.0),
+                    child: Container(
+                      width: double.infinity,
+                      color: Colors.transparent,
+                      child: Row(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Color(0xFFEDF9F0),
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                    image: AssetImage("assets/pp.png"),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            width: 20,
+                          ),
+                          Text(
+                            "Privacy Policy",
+                            style: GoogleFonts.rubik(
+                                fontSize: 18, fontWeight: FontWeight.w500),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Divider(),
+                // GestureDetector(
+                //   onTap: () {
+                //    delete();
+                //   },
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(5.0),
+                //     child: Container(
+                //       width: double.infinity,
+                //       color: Colors.transparent,
+                //       child: Row(
+                //         children: [
+                //           Container(
+                //             decoration: BoxDecoration(
+                //               color: Color(0xFFEDF9F0),
+                //               borderRadius: BorderRadius.circular(10.0),
+                //             ),
+                //             child: Padding(
+                //               padding: const EdgeInsets.all(15.0),
+                //               child: Icon(Icons.delete, color: Color(0xFF118743),size: 20,),
+                //             ),
+                //           ),
+                //           SizedBox(
+                //             width: 20,
+                //           ),
+                //           Text(
+                //             "Delete Account",
+                //             style: GoogleFonts.rubik(
+                //                 fontSize: 18,
+                //                 color: Color(0xFF000000),
+                //                 fontWeight: FontWeight.w500),
+                //           )
+                //         ],
+                //       ),
+                //     ),
+                //   ),
+                // ),
+                // Divider(),
                 GestureDetector(
                   onTap: () {
                     openHere();
@@ -405,20 +545,12 @@ class _UserdrwaState extends State<Userdrwa> {
                         children: [
                           Container(
                             decoration: BoxDecoration(
-                              color: Color(0xFFF9EDED),
+                              color: Color(0xFFEDF9F0),
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Container(
-                                width: 35,
-                                height: 35,
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: AssetImage("assets/exit.png"),
-                                  ),
-                                ),
-                              ),
+                              padding: const EdgeInsets.all(15.0),
+                              child: Icon(Icons.logout, color: Color(0xFF118743),size: 20,),
                             ),
                           ),
                           SizedBox(
@@ -428,7 +560,7 @@ class _UserdrwaState extends State<Userdrwa> {
                             "Log Out",
                             style: GoogleFonts.rubik(
                                 fontSize: 18,
-                                color: Color(0xFFD31212),
+                                color: Color(0xFF000000),
                                 fontWeight: FontWeight.w500),
                           )
                         ],

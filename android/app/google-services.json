@@ -1,32 +1,13 @@
 {
   "project_info": {
-    "project_number": "234936259278",
-    "project_id": "b-fac-74b03",
-    "storage_bucket": "b-fac-74b03.appspot.com"
+    "project_number": "796380278681",
+    "project_id": "jobs4u-ac8ef",
+    "storage_bucket": "jobs4u-ac8ef.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:234936259278:android:c92c82abb3df6dc213f69f",
-        "android_client_info": {
-          "package_name": "com.example.fac"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBoPetPinLBJashz8GSTSwwTD3JvmsokUE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:234936259278:android:d564a6a442cdc6cd13f69f",
+        "mobilesdk_app_id": "1:796380278681:android:4b19c437ad3129b2b0ad08",
         "android_client_info": {
           "package_name": "com.frontage.fac"
         }
@@ -34,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBoPetPinLBJashz8GSTSwwTD3JvmsokUE"
+          "current_key": "AIzaSyB8OTKCLeEkBlTziMjRMRM_hI2DtTVSovY"
         }
       ],
       "services": {

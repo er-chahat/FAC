@@ -10,6 +10,7 @@ import 'package:fac/home/usermsg.dart';
 import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Usermain extends StatefulWidget {
   const Usermain({super.key});
@@ -32,6 +33,36 @@ class _UsermainState extends State<Usermain> {
   var neeraj = "";
   var empst = "";
   var ohimg = "";
+
+  final urlRegExp = RegExp(
+    r'(?:(https?:\/\/)?(meet\.google\.com\/[\w\-]+))',
+    caseSensitive: false,
+  );
+
+  // Function to launch the URL
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  // Function to extract the first URL from the message
+  String? extractFirstUrl(String message) {
+
+
+    final matches = urlRegExp.allMatches(message);
+    if (matches.isNotEmpty) {
+      final url = matches.first.group(0);
+      if (url != null && !url.startsWith('http')) {
+        return 'https://' + url;
+      }
+      return url;
+    }
+    return null;
+  }
 
 
   Timer? timers;
@@ -254,6 +285,21 @@ class _UsermainState extends State<Usermain> {
                                     borderRadius: BorderRadius.circular(50),
                                     child: Image(
                                       image: NetworkImage("$photo/$cclogo"),
+                                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                        return Container(
+                                          height: 55,
+                                          width: 55,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200], // Placeholder background color
+                                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                          ),
+                                          child: Icon(
+                                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                            size: 30,
+                                            color: Colors.grey[400],
+                                          ),
+                                        );
+                                      },
                                       height: 65,
                                       width: 65,
                                       fit: BoxFit.cover,
@@ -342,7 +388,7 @@ class _UsermainState extends State<Usermain> {
                                                     ],
                                                     color: vacancy["user_type"] ==
                                                         "User"
-                                                        ? Colors.green[200]
+                                                        ? Color(0xFF118743)
                                                         : Colors.white38,
                                                     borderRadius: vacancy[
                                                     "user_type"] ==
@@ -370,21 +416,29 @@ class _UsermainState extends State<Usermain> {
                                                           20.0),
                                                     ),
                                                   ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(
-                                                        20.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Text(
-                                                          vacancy["message"],
-                                                          style:
-                                                          GoogleFonts.rubik(
-                                                              fontSize: 17),
-                                                        ),
-                                                      ],
+                                                  child: InkWell(
+                                                    onTap: (){
+                                                      String? url = extractFirstUrl(vacancy["message"]);
+                                                      if (url != null) {
+                                                        _launchURL(url);
+                                                      }
+                                                    },
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(
+                                                          20.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Text(
+                                                            vacancy["message"],
+                                                            style:
+                                                            GoogleFonts.rubik(
+                                                                fontSize: 17),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -441,7 +495,7 @@ class _UsermainState extends State<Usermain> {
                          });
                         },
                         child: Icon(Icons.send, color: Colors.white, size: 18),
-                        backgroundColor: Colors.green[700],
+                        backgroundColor: Color(0xFF118743),
                         elevation: 0,
                       ),
                     ],

@@ -5,6 +5,8 @@ import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+
+import '../home/user_prof_view.dart';
 class EmpNotification extends StatefulWidget {
   const EmpNotification({super.key});
 
@@ -110,43 +112,53 @@ class _EmpNotificationState extends State<EmpNotification> {
                           timeColor=Colors.grey;
 
                       }
-                      return Container(
-                        margin: EdgeInsets.only(bottom: 20),
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 2,
-                            ),
-                          ],
-                          color: containerColor,
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(12.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  notifications[index]["notification"],
-                                  maxLines: 4,
-                                  style: GoogleFonts.rubik(
-                                      fontSize: 13,
-                                      fontWeight: notifications[index]["new"] == "Yes" ? FontWeight.w500 : FontWeight.w200,
-                                      color: textColor
-                                  ),
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              SizedBox(width: 10,),
-                              Text(
-                                formattedTime,
-                                style: GoogleFonts.rubik(color: timeColor),
+                      return InkWell(
+                        onTap: (){
+                          if(notifications[index]["ntype"] == "Application") {
+                            Navigator.push(context, MaterialPageRoute(
+                                builder: (context) =>
+                                    UserProfView(
+                                        userId: "${notifications[index]["sender_user_id"]}")));
+                          }
+                        },
+                        child: Container(
+                          margin: EdgeInsets.only(bottom: 20),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 2,
                               ),
                             ],
+                            color: containerColor,
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    notifications[index]["notification"],
+                                    maxLines: 4,
+                                    style: GoogleFonts.rubik(
+                                        fontSize: 13,
+                                        fontWeight: notifications[index]["new"] == "Yes" ? FontWeight.w500 : FontWeight.w200,
+                                        color: textColor
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                SizedBox(width: 10,),
+                                Text(
+                                  formattedTime,
+                                  style: GoogleFonts.rubik(color: timeColor),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       );

@@ -10,6 +10,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../gemini/gemini_chat.dart';
+
 var im="";
 
 class Rnp extends StatefulWidget {
@@ -91,130 +93,156 @@ class _RnpState extends State<Rnp> {
               child: Text("Skip",style: GoogleFonts.rubik(color: Color(0xFF118743),fontWeight: FontWeight.w600),))
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 20,
-                ),
-                Text(
-                  "Resume or CV",
-                  style: GoogleFonts.rubik(
-                      fontWeight: FontWeight.w500, fontSize: 20),
-                ),
-                SizedBox(height: 40),
-                Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1.0,
-                        style: BorderStyle.solid,
-                      ),
-                        borderRadius: BorderRadius.circular(20.0),
+      body: Stack(
+        children:[
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 20,
                     ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 30,),
-                        if(base64PDF==null||base64PDF=="")
-                        Padding(
-                          padding: const EdgeInsets.only(left: 30,right: 30),
-                          child: Text("Upload your CV or Resume and use it when you apply for jobs.",style: GoogleFonts.rubik(color: Colors.grey,fontSize: 14),textAlign: TextAlign.center,),
+                    Text(
+                      "Resume or CV",
+                      style: GoogleFonts.rubik(
+                          fontWeight: FontWeight.w500, fontSize: 20),
+                    ),
+                    SizedBox(height: 40),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1.0,
+                          style: BorderStyle.solid,
                         ),
-                        if(base64PDF!=null)
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2),
-                                    spreadRadius: 2,
-                                    blurRadius: 2,
-                                  ),
-                                ],
-                                color: Colors.white54,
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            SizedBox(height: 30,),
+                            if(base64PDF==null||base64PDF=="")
+                              Padding(
+                                padding: const EdgeInsets.only(left: 30,right: 30),
+                                child: Text("Upload your CV or Resume and use it when you apply for jobs.",style: GoogleFonts.rubik(color: Colors.grey,fontSize: 14),textAlign: TextAlign.center,),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(20),
-                                child: Row(
-                                  children: [
-                                    Image(image: AssetImage("assets/pdf.png")),
-                                    SizedBox(
-                                      width: 10,
+                            if(base64PDF!=null)
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.2),
+                                        spreadRadius: 2,
+                                        blurRadius: 2,
+                                      ),
+                                    ],
+                                    color: Colors.white54,
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(20),
+                                    child: Row(
+                                      children: [
+                                        Image(image: AssetImage("assets/pdf.png")),
+                                        SizedBox(
+                                          width: 10,
+                                        ),
+                                        Expanded(
+                                          child: Text("$filePath",style: GoogleFonts.rubik(), maxLines: 3,
+                                            overflow: TextOverflow.ellipsis,softWrap: false,),
+                                        )
+                                      ],
                                     ),
-                                    Expanded(
-                                      child: Text("$filePath",style: GoogleFonts.rubik(), maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,softWrap: false,),
-                                    )
-                                  ],
+                                  ),
+                                ),
+                              ),
+                            SizedBox(height: 30,),
+                            Container(
+                              width: 150,
+                              height: 50,
+                              child: TextButton(
+                                style: TextButton.styleFrom(
+                                    backgroundColor: Color(0xFF118743),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10))),
+                                onPressed: () async {
+                                  await pickFile();
+                                  print("ok");
+
+                                },
+                                child: Text(
+                                  "Select",
+                                  style: GoogleFonts.rubik(
+                                      color: Colors.white, fontSize: 17),
                                 ),
                               ),
                             ),
-                          ),
-                        SizedBox(height: 30,),
-                        Container(
-                          width: 150,
-                          height: 50,
-                          child: TextButton(
-                            style: TextButton.styleFrom(
-                                backgroundColor: Color(0xFF118743),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10))),
-                            onPressed: () async {
-                              await pickFile();
-                              print("ok");
-
-                            },
-                            child: Text(
-                              "Select",
-                              style: GoogleFonts.rubik(
-                                  color: Colors.white, fontSize: 17),
-                            ),
-                          ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 200),
-                Container(
-                  width: double.infinity,
-                  height: 50,
-                  child: TextButton(
-                    style: TextButton.styleFrom(
-                        backgroundColor: buttonColor,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10))),
-                    onPressed:filePath != null && filePath!.isNotEmpty
-                      ?() async {
-                      print("hiiii");
-
-                      await upload(context);
-
-                    }
-                        :null,
-
-                    child:  Text(
-                      "Save",
-                      style: GoogleFonts.rubik(
-                        color: Colors.white,
-                        fontSize: 17,
                       ),
                     ),
+                    SizedBox(height: 200),
+                    Container(
+                      width: double.infinity,
+                      height: 50,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                            backgroundColor: buttonColor,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        onPressed:filePath != null && filePath!.isNotEmpty
+                            ?() async {
+                          print("hiiii");
+
+                          await upload(context);
+
+                        }
+                            :null,
+
+                        child:  Text(
+                          "Save",
+                          style: GoogleFonts.rubik(
+                            color: Colors.white,
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                  ]
+              ),
+            ),
+          ),
+          Positioned(
+              right: -50,
+              top: 60,
+              child: Transform.rotate(
+                angle: -90 * 3.1415926535897932 / 180,
+                child: InkWell(
+                   onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>GeminiAI()));
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.green.shade800,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(6)
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text("AI CV & cover letter",style: TextStyle(color: Colors.white),),
+                    ),
                   ),
                 ),
-
-              ]
-          ),
-        ),
+              ))
+        ] ,
       ),
     );
   }
@@ -300,7 +328,6 @@ class _RnpState extends State<Rnp> {
           }
 
         });
-
 
 
 

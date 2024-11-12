@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:fac/welcome/login.dart';
 import 'package:fac/welcome/signupp.dart';
 import 'package:fac/welcome/signup.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart'as http;
 import 'package:google_fonts/google_fonts.dart';
+
+import '../starting/splashscreen.dart';
 
 var type="";
 var sub_id="";
@@ -20,6 +25,76 @@ class _ChooseState extends State<Choose> {
 
   bool isTapped = false;
   bool isTappedd = false;
+  var dataSc;
+  Future _getData() async {
+    try {
+      print("hello iam   the blogview");
+      var url = Uri.parse("$mainurl/splash_screen.php");
+      Map<String, dynamic> mapdata = {
+        "updte": "1",
+      };
+      //http.Response response = await http.post(url,body: mapdata);
+      http.Response response = await http.post(url, body: jsonEncode(mapdata));
+      var data = json.decode(response.body);
+      if(response.statusCode ==200){
+        print("your Splash Screen Data is ${data}");
+        if(data["error"]==0){
+          setState(() {
+            dataSc=data["deta"];
+          });
+          return data;
+        }else{
+          setState(() {
+            dataSc=[];
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Something went wrong"),
+              duration: Duration(seconds: 2 ),
+              shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            ),
+          );
+          //MotionToast.error(description: Text(data["error_msg"]));
+        }
+      }else{
+        setState(() {
+          dataSc=[];
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went wrong"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+        // MotionToast.warning(
+        //     title:  Text("${data["error_msg"]}"),
+        //     description:  Text("try again later ")
+        // ).show(context);
+
+      }
+
+    }catch(e){
+      setState(() {
+        dataSc=[];
+      });
+      print("your excepton is :::: $e");
+      // MotionToast.warning(
+      //     title:  Text("$e"),
+      //     description:  Text("try again later ")
+      // ).show(context);
+      //Get.snackbar('Exception',e.toString());
+    }
+  }
+
+  @override
+  void initState() {
+    _getData();
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +111,11 @@ class _ChooseState extends State<Choose> {
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.only(left: 10, right: 10, top: 80),
-            child: Column(
+            child: dataSc==null?Center(
+              child: CircularProgressIndicator(
+                color: Color(0xFF118743),
+              ),
+            ):Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Center(child: Image(image: AssetImage("assets/hands.png"))),
@@ -44,7 +123,7 @@ class _ChooseState extends State<Choose> {
                   height: 20,
                 ),
                 Text(
-                  "Choose Your Job Type",
+                  "${dataSc[3]["heading"]}",
                   style: GoogleFonts.rubik(
                       fontSize: 27, fontWeight: FontWeight.w500),
                 ),
@@ -52,7 +131,7 @@ class _ChooseState extends State<Choose> {
                   height: 20,
                 ),
                 Text(
-                  "Choose whether you are looking for a job or you are an organization/company that needs employees.",
+                  "${dataSc[3]["sub_heading"]}",
                   textAlign: TextAlign.center,
                   style: GoogleFonts.rubik(color: Colors.grey),
                 ),

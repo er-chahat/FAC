@@ -41,7 +41,15 @@ class _SubscriptionState extends State<Subscription> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -168,6 +176,21 @@ class _SubscriptionState extends State<Subscription> {
                                   child: Image(
                                     image: NetworkImage(
                                         "$photos${subscription['image']}"),
+                                    errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                      return Container(
+                                        height: 55,
+                                        width: 55,
+                                        decoration: BoxDecoration(
+                                          color: Colors.grey[200], // Placeholder background color
+                                          borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                        ),
+                                        child: Icon(
+                                          Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                          size: 30,
+                                          color: Colors.grey[400],
+                                        ),
+                                      );
+                                    },
                                     height: 90,
                                     width: 90,
                                   ),

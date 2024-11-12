@@ -1,5 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:fac/chatGpt/chatpage.dart';
+import 'package:fac/gemini/gemini_chat.dart';
 import 'package:fac/home/Userbottom.dart';
 import 'package:fac/home/question_cat.dart';
 import 'package:fac/home/subb.dart';
@@ -84,7 +86,7 @@ class _MainprofileState extends State<Mainprofile> {
         backgroundColor: Color(0xFFfafafd),
         body:  _isLoading
             ? Center(
-          child: CircularProgressIndicator(color: Colors.green[700],),
+          child: CircularProgressIndicator(color: Color(0xFF118743),),
         )
             :RefreshIndicator(
           onRefresh: () async {
@@ -234,14 +236,17 @@ class _MainprofileState extends State<Mainprofile> {
                               search = text;
                             });
                           },
+                          style: GoogleFonts.rubik(),
+
                           decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
+                                borderRadius: BorderRadius.circular(10.0),
                                 borderSide: BorderSide.none,
                               ),
                               hintText: 'Search a job or position',
+                              hintStyle: GoogleFonts.rubik(color: Colors.grey),
                               prefixIcon: Icon(
                                 Icons.search,
                                 color: Colors.grey,
@@ -260,13 +265,13 @@ class _MainprofileState extends State<Mainprofile> {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Container(
-                              height: 50,
+                              height: 30,
                               width: 100,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green[700],
+                                  backgroundColor:Color(0xFF118743),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
                                 ),
                                 onPressed: () {
@@ -296,13 +301,13 @@ class _MainprofileState extends State<Mainprofile> {
                               borderRadius: BorderRadius.circular(10.0),
                             ),
                             child: Container(
-                              height: 25,
+                              height: 30,
                               width: 100,
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green[700],
+                                  backgroundColor: Color(0xFF118743),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
+                                    borderRadius: BorderRadius.circular(10.0),
                                   ),
                                 ),
                                 onPressed: () {
@@ -354,58 +359,59 @@ class _MainprofileState extends State<Mainprofile> {
                   SizedBox(
                     height: 20,
                   ),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 2,
-                          blurRadius: 2,
-                        ),
-                      ],
-                      color: Colors.white,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Know your strength ",
-                            style: GoogleFonts.rubik(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(top: 0),
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green[700],
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=>QuestionsScreen()));
-                              },
-                              child: Text(
-                                "Take Test",
-                                style: GoogleFonts.baloo2(color: Colors.white),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  // Container(
+                  //   width: double.infinity,
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(10),
+                  //     boxShadow: [
+                  //       BoxShadow(
+                  //         color: Colors.grey.withOpacity(0.2),
+                  //         spreadRadius: 2,
+                  //         blurRadius: 2,
+                  //       ),
+                  //     ],
+                  //     color: Colors.white,
+                  //   ),
+                  //   child: Padding(
+                  //     padding: const EdgeInsets.all(15.0),
+                  //     child: Row(
+                  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //       children: [
+                  //         Text(
+                  //           "Know your strength ",
+                  //           style: GoogleFonts.rubik(
+                  //             color: Colors.black,
+                  //             fontWeight: FontWeight.w500,
+                  //             fontSize: 14,
+                  //           ),
+                  //           textAlign: TextAlign.center,
+                  //         ),
+                  //         Container(
+                  //           margin: EdgeInsets.only(top: 0),
+                  //           child: ElevatedButton(
+                  //             style: ElevatedButton.styleFrom(
+                  //               backgroundColor: Colors.green[700],
+                  //               shape: RoundedRectangleBorder(
+                  //                 borderRadius: BorderRadius.circular(10.0),
+                  //               ),
+                  //             ),
+                  //             onPressed: () {
+                  //               Navigator.push(context, MaterialPageRoute(builder: (context)=>QuestionsScreen()));
+                  //              // Navigator.push(context, MaterialPageRoute(builder: (context)=>GeminiAI()));
+                  //             },
+                  //             child: Text(
+                  //               "Take Test",
+                  //               style: GoogleFonts.baloo2(color: Colors.white),
+                  //             ),
+                  //           ),
+                  //         ),
+                  //       ],
+                  //     ),
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   height: 20,
+                  // ),
                   GestureDetector(
                     onTap: () {
                       //Navigator.pushNamed(context, "mp");
@@ -429,9 +435,9 @@ class _MainprofileState extends State<Mainprofile> {
                               int index = entry.key;
                               Map<String, dynamic> jobData = entry.value;
                               List<Color> colors = [
-                                Colors.green,
-                                Colors.blue,
-                                Colors.pink
+                                Color(0xFF118743),
+                                Color(0xFF118743),
+                                Color(0xFF118743)
                               ];
                               Color containerColor = colors[index % colors.length];
                               return GestureDetector(
@@ -561,7 +567,7 @@ class _MainprofileState extends State<Mainprofile> {
                                         Row(
                                           children: [
                                             Text(
-                                              jobData["salary"],
+                                              jobData["salary"]=="/null"?"Not given":jobData["salary"],
                                               style: GoogleFonts.rubik(
                                                   color: Colors.white, fontSize: 15),
                                             ),
@@ -636,9 +642,9 @@ class _MainprofileState extends State<Mainprofile> {
                               int index = entry.key;
                               Map<String, dynamic> jobData = entry.value;
                               List<Color> colors = [
-                                Color(0xffe9bcf7),
-                                Color(0xfffad9f7),
-                                Color(0xfff5c4e4)
+                                Color(0xFF118743),
+                                Color(0xFF118743),
+                                Color(0xFF118743)
                               ];
                               Color containerColor = colors[index % colors.length];
                               return GestureDetector(
@@ -669,6 +675,21 @@ class _MainprofileState extends State<Mainprofile> {
                                             child: Image(
                                               image: NetworkImage(
                                                   "$photo/${jobData["jop_image"]}"),
+                                              errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                                return Container(
+                                                  height: 50,
+                                                  width: 50,
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[200], // Placeholder background color
+                                                    borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                                    size: 30,
+                                                    color: Colors.grey[400],
+                                                  ),
+                                                );
+                                              },
                                               height: 50,
                                               width: 50,
                                             )
@@ -683,14 +704,14 @@ class _MainprofileState extends State<Mainprofile> {
                                         Text(
                                           "$name",
                                           style: GoogleFonts.rubik(
-                                              color: Colors.blueGrey),
+                                              color: Colors.white),
                                           textAlign: TextAlign.center,
                                         ),
                                         SizedBox(
                                           height: 10,
                                         ),
                                         Text(
-                                          jobData["salary"],
+                                          jobData["salary"]=="/null"?"Not given":jobData["salary"],
                                           style: GoogleFonts.rubik(),
                                           textAlign: TextAlign.center,
                                         )
@@ -780,6 +801,7 @@ class _MainprofileState extends State<Mainprofile> {
                 ),
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context)=>QuestionsScreen()));
+
                 },
                 child: Text(
                   "Take Test",

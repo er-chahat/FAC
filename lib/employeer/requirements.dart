@@ -16,6 +16,7 @@ class Requirements extends StatefulWidget {
 class _RequirementsState extends State<Requirements> {
 
 var item_no="";
+final GlobalKey<FormState> _key = GlobalKey();
 
   @override
   void initState() {
@@ -205,88 +206,99 @@ var item_no="";
                   child: SizedBox(
                     child: Align(
                         alignment: Alignment.topLeft,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Text(
-                              "Add Your Requirements",
-                              style: GoogleFonts.rubik(
-                                  fontSize: 24, fontWeight: FontWeight.w500),
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Text(
-                              "Enter your requirements ",
-                              style: GoogleFonts.rubik(color: Colors.grey),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8),
-                              child: TextField(
-                                controller: reqcontroller,
-                                cursorColor: Color(0xFF118743),
-                                onChanged: (text) {
-                                  setState(() {
-                                    req = text;
-                                  });
-                                },
-                                style: GoogleFonts.rubik(),
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 16),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    // Set the border color
-                                    borderRadius: BorderRadius.circular(10),
+                        child: Form(
+                          key: _key,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                "Add Your Requirements",
+                                style: GoogleFonts.rubik(
+                                    fontSize: 24, fontWeight: FontWeight.w500),
+                              ),
+                              SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                "Enter your requirements ",
+                                style: GoogleFonts.rubik(color: Colors.grey),
+                              ),
+                              SizedBox(
+                                height: 20,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 8),
+                                child: TextFormField(
+                                  controller: reqcontroller,
+                                  cursorColor: Color(0xFF118743),
+                                  onChanged: (text) {
+                                    setState(() {
+                                      req = text;
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value!.isEmpty) {
+                                      return 'This field is required';
+                                    }
+                                    return null;
+                                  },
+                                  style: GoogleFonts.rubik(),
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding:
+                                    EdgeInsets.symmetric(horizontal: 16),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      // Set the border color
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      // Set the border color
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    hintText: "Requirements",
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    // Set the border color
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  hintText: "Requirements",
                                 ),
                               ),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(15),
-                              child: Container(
-                                  width: double.infinity,
-                                  height: 45,
-                                  child: TextButton(
-                                    style: TextButton.styleFrom(
-                                        backgroundColor: Color(0xFF118743),
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                            BorderRadius.circular(10))),
-                                    onPressed: () {
-                                      JobReq(context);
-                                      Navigator.pushNamed(context, "req");
-                                    },
-                                    child: Text(
-                                      "+ADD",
-                                      style: GoogleFonts.rubik(
-                                          color: Colors.white, fontSize: 15),
-                                    ),
-                                  )),
-                            ),
+                              SizedBox(
+                                height: 30,
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(15),
+                                child: Container(
+                                    width: double.infinity,
+                                    height: 45,
+                                    child: TextButton(
+                                      style: TextButton.styleFrom(
+                                          backgroundColor: Color(0xFF118743),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                              BorderRadius.circular(10))),
+                                      onPressed: () {
+                                        if(_key.currentState!.validate()){
+                                          JobReq(context);
+                                          // Navigator.pushNamed(context, "req");
+                                        }
+                                      },
+                                      child: Text(
+                                        "+ADD",
+                                        style: GoogleFonts.rubik(
+                                            color: Colors.white, fontSize: 15),
+                                      ),
+                                    )),
+                              ),
 
-                          ]
+                            ]
+                          ),
                         )),
                   ),
                 );
@@ -328,6 +340,8 @@ var item_no="";
         setState(() {
         reqcontroller.clear();
         Joblist(context);
+        fetchData();
+        Navigator.pop(context);
         });
 
       }else{

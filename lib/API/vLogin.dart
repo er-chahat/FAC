@@ -43,6 +43,7 @@ class Vlogin with ChangeNotifier {
       if (jsondata["error"] == 0) {
         // Navigator.pushNamed(context, "wel");
         var pref = await SharedPreferences.getInstance();
+        pref.setBool(LoginState.LOGIN ,true );
         pref.setString(LoginState.USERID, jsondata["user_id"]);
         pref.setString(LoginState.USERTYPE, jsondata["user_type"]);
         pref.setString(LoginState.SESSIONID, jsondata["session"]);

@@ -156,6 +156,21 @@ class _UsersubsubState extends State<Usersubsub> {
                   children: [
                     Image(
                       image: NetworkImage("$photos$ig"),
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(
+                          height: 55,
+                          width: 55,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200], // Placeholder background color
+                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                          ),
+                          child: Icon(
+                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                            size: 30,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
                       height: 120,
                       width: 120,
                     ),

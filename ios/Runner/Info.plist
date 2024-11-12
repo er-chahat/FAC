@@ -10,6 +10,8 @@
 	<string>Jobs4Me Australia</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -19,15 +21,19 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3</string>
+	<string>1.9</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>1001</string>
+	<key>LSApplicationCategoryType</key>
+	<string></string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>To capture profile photo please grant camera access</string>
+	<key>NSHumanReadableCopyright</key>
+	<string></string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>*your app name* would like to save photos from the app to your gallery</string>
 	<key>NSPhotoLibraryUsageDescription</key>

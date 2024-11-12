@@ -2,6 +2,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'package:fac/employeer/bottom.dart';
 import 'package:fac/home/Userbottom.dart';
+import 'package:fac/home/job.dart';
 import 'package:fac/home/mainprofile.dart';
 import 'package:fac/home/subb.dart';
 import 'package:fac/home/wel.dart';
@@ -10,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../welcome/choose.dart';
 
 
 class Alljobs extends StatefulWidget {
@@ -22,9 +25,52 @@ class Alljobs extends StatefulWidget {
 class _AlljobsState extends State<Alljobs> {
 
   List<Widget> jobWidgets = [];
-  List<Color> colors = [Color(0xffd1b3ff), Color(0xffdf9fdf), Color(0xffff99cc)];
+  List<Color> colors = [Color(0xFF118743), Color(0xFF118743), Color(0xFF118743)];
   int colorIndex = 0;
   bool _isLoading = true;
+  var showsub = false;
+
+  Future<void> showSub(BuildContext context) async {
+    print("hi");
+    HashMap<String, String> map = HashMap();
+    map["updte"] = "1";
+
+    var res = await http.post(Uri.parse("$mainurl/subscription_switch.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("::::::::::::::::$jsondata");
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      if (er == 0) {
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
+          setState(() {
+            showsub=true;
+          });
+        }else{
+          setState(() {
+            showsub=false;
+          });
+        }
+
+      } else {
+        // if(userPorti.isNotEmpty){
+        //   userPorti.clear();
+        //   portfolioImages.clear();
+        // }
+      }
+    } else {
+      print('error');
+    }
+  }
   void callback_mem(var data){
     setState(() {
       membershipDetails(context);
@@ -33,6 +79,7 @@ class _AlljobsState extends State<Alljobs> {
 
   @override
   void initState() {
+    showSub(context);
     fetching(context);
     super.initState();
   }
@@ -56,7 +103,7 @@ class _AlljobsState extends State<Alljobs> {
         ),
         body: _isLoading
             ? Center(
-          child: CircularProgressIndicator(color: Colors.green[700],),
+          child: CircularProgressIndicator(color: Color(0xFF118743),),
         )
             :Padding(
           padding: const EdgeInsets.all(15.0),
@@ -108,6 +155,7 @@ class _AlljobsState extends State<Alljobs> {
 
   }
 
+
   Widget buildJobWidget(Map<String, dynamic> jobData,Color containerColor) {
     print("\n\n\n\nohno\n\n\n\n");
     print("hello :::::::::::::::$photo/${jobData["jop_image"]}");
@@ -116,6 +164,7 @@ class _AlljobsState extends State<Alljobs> {
     var height = size.height;
     return GestureDetector(
        onTap: () {
+
         setState(() {
           con_id=jobData["jop_vacancy_id"];
           cname=jobData["company_name"];
@@ -161,6 +210,7 @@ class _AlljobsState extends State<Alljobs> {
                         decoration: BoxDecoration(
                           image: DecorationImage(
                             image: NetworkImage("$photo/${jobData["jop_image"]}"),
+
                           ),
                         ),
                       ),
@@ -170,7 +220,9 @@ class _AlljobsState extends State<Alljobs> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(jobData["open_position"]?? "",style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 18,color: Colors.white),),
+                      Container(
+                        width: width/1.6,
+                          child: Text(jobData["open_position"]?? "",softWrap: true,overflow: TextOverflow.ellipsis,maxLines: 2,style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 18,color: Colors.white),)),
                       SizedBox(height: 2),
                       Text(jobData["company_name"]??"",style: GoogleFonts.rubik(fontWeight: FontWeight.w300,fontSize: 15,color: Colors.white),)
 
@@ -227,7 +279,7 @@ class _AlljobsState extends State<Alljobs> {
               SizedBox(height: 30),
               Row(
                 children: [
-                  Text(jobData["salary"]?? "",style: GoogleFonts.rubik(color: Colors.white,fontSize: 15),),
+                  Text(jobData["salary"]=="/null"?"Not given":"${jobData["salary"]}"??"",style: GoogleFonts.rubik(color: Colors.white,fontSize: 15),),
                   Spacer(flex: 2,),
                   Text("${jobData["location"]}"",""Australia",style: GoogleFonts.rubik(color: Colors.white,fontSize: 15),)
 
@@ -281,6 +333,7 @@ class _AlljobsState extends State<Alljobs> {
     dynamic jsondata = jsonDecode(response.body);
     print("nn");
     print(jsondata);
+    print("hello its error$jsondata");
     try {
       if (jsondata["error"] ==0) {
         print("okkkkkk");
@@ -288,20 +341,25 @@ class _AlljobsState extends State<Alljobs> {
         Navigator.pushNamed(context, "rjj");
       }
       else {
-        print(jsondata["error"]);
-        setState(() {
+        if(showsub == true){
+          print(jsondata["error"]);
+          setState(() {
+            ritesh=jsondata["error"].toString();
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(jsondata["error_msg"]),
+              duration: Duration(seconds: 2),
+              shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            ),
+          );
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>Subb(callback:callback_mem)));
+        }else{
           ritesh=jsondata["error"].toString();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(jsondata["error_msg"]),
-            duration: Duration(seconds: 2),
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-          ),
-        );
+          Navigator.pushNamed(context, "rjj");
+        }
 
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>Subb(callback:callback_mem)));
       }
     } catch (e) {
       print('Error while fetching profile: $e');

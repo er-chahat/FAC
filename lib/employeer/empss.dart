@@ -7,6 +7,8 @@ import 'package:fac/employeer/emphome.dart';
 import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+import '../home/de.dart';
 class Empss extends StatefulWidget {
   const Empss({super.key});
 
@@ -120,16 +122,37 @@ Widget peopleContainer(dynamic peoplist, BuildContext context) {
 
                 child:ClipRRect(
                     borderRadius: BorderRadius.circular(50),
-                    child: Image(image: NetworkImage("$photo/${peoplist["profile_img"]}"),height: 65,width: 65,fit: BoxFit.cover,)),
+                    child: Image(
+                      image: NetworkImage("$photo/${peoplist["profile_img"]}"),
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(
+                          height: 55,
+                          width: 55,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200], // Placeholder background color
+                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                          ),
+                          child: Icon(
+                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                            size: 30,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
+                      height: 65,width: 65,fit: BoxFit.cover,)),
 
               ),
               SizedBox(width: 10,),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("${peoplist["user_name"] ?? ""}",style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 15),),
+                  Container(
+                      width: MediaQuery.of(context).size.width/2,
+                      child: Text("${peoplist["user_name"] ?? ""}",style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 15),)),
 
-                  Text("Skill: ${peoplist["skills"] ?? ""}",style: GoogleFonts.rubik(color: Colors.grey,fontSize: 13),),
+                  Container(
+                      width: MediaQuery.of(context).size.width/2,
+                      child: Text("Skill: ${peoplist["skills"] ?? ""}",style: GoogleFonts.rubik(color: Colors.grey,fontSize: 13),)),
 
 
                 ],
@@ -176,7 +199,8 @@ Widget peopleContainer(dynamic peoplist, BuildContext context) {
                           borderRadius: BorderRadius.circular(10),
                           side: BorderSide.none,)),
                     onPressed: () {
-                       Navigator.pushNamed(context, "de");
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>De(cate: "",user_id: "",)));
+                       //Navigator.pushNamed(context, "de");
                        iid=peoplist["user_id"];
                     },
                     child: Text(

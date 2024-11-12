@@ -13,8 +13,9 @@ class PostChat extends StatefulWidget {
   var profile;
   var name;
   var emp;
+  var emp_id;
   var isEmployer;
-  PostChat({required this.jobPostId,required this.name,required this.emp,required this.profile,required this.isEmployer});
+  PostChat({required this.jobPostId,required this.name,required this.emp,required this.profile,required this.isEmployer,required this.emp_id});
 
   @override
   State<PostChat> createState() => _PostChatState();
@@ -35,6 +36,7 @@ class _PostChatState extends State<PostChat> {
     map["updte"] = "1";
     map["user_id"] = user_id;
     map["job_seeker_post_id"] = widget.jobPostId.toString();
+    map["employer_id"] = widget.emp_id.toString();
 
     var res = await http.post(Uri.parse("$mainurl/job_post_messages.php"),
         body: jsonEncode(map));
@@ -57,29 +59,51 @@ class _PostChatState extends State<PostChat> {
   }
 
   Future SendMessage() async {
-    HashMap<String, String> map = HashMap();
-    map["updte"] = "1";
-    map["user_id"] = user_id;
-    map["job_seeker_post_id"] = widget.jobPostId.toString();
-    map["message"] = msgcontroller.text;
+    try{
+      setState(() {
+        loading=true;
+      });
+      if(msgcontroller.text.isNotEmpty) {
+        HashMap<String, String> map = HashMap();
+        map["updte"] = "1";
+        map["user_id"] = user_id;
+        map["job_seeker_post_id"] = widget.jobPostId.toString();
+        map["message"] = msgcontroller.text;
+        map["employer_id"] = widget.emp_id.toString();
 
-    var res = await http.post(Uri.parse("$mainurl/job_post_send_messages.php"),
-        body: jsonEncode(map));
-    msgcontroller.clear();
+        var res = await http.post(
+            Uri.parse("$mainurl/job_post_send_messages.php"),
+            body: jsonEncode(map));
+        msgcontroller.clear();
 
-    print(res.body);
-    dynamic jsondata = jsonDecode(res.body);
-    print("Mapped::::::$map");
-    print(jsondata);
+        print(res.body);
+        dynamic jsondata = jsonDecode(res.body);
+        print("Mapped::::::send mesag $map");
+        print(jsondata);
 
-    if (res.statusCode == 200) {
-      print("send msg");
+        if (res.statusCode == 200) {
+          print("send msg");
+          setState(() {
+            loading = false;
+          });
+          GetMessage();
+        } else {
+          setState(() {
+            loading = false;
+          });
+          print('Error: ${res.statusCode}');
+        }
+      }else{
+        setState(() {
+          loading=false;
+          msgcontroller.clear();
+        });
+      }
+    }catch(e){
       setState(() {
         loading=false;
       });
-      GetMessage();
-    } else {
-      print('Error: ${res.statusCode}');
+      print('Error: $e');
     }
   }
 
@@ -405,12 +429,11 @@ class _PostChatState extends State<PostChat> {
                   const SizedBox(width: 15),
                   FloatingActionButton(
                     onPressed: () async {
+                      print("your loading is  $loading");
                       if(loading == false) {
                         await SendMessage();
                       }
-                      setState(() {
-                        loading=true;
-                      });
+                      print("your loading is  $loading");
 
                     },
                     child: Icon(Icons.send, color: Colors.white, size: 18),

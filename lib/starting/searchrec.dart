@@ -18,7 +18,7 @@ class Searchrec extends StatefulWidget {
 
 class _SearchrecState extends State<Searchrec> {
   List<Widget> jobWidgets = [];
-  List<Color> colors = [Color(0xffd1b3ff), Color(0xffdf9fdf), Color(0xffff99cc)];
+  List<Color> colors = [Color(0xFF118743), Color(0xFF118743), Color(0xFF118743)];
   int colorIndex = 0;
   void callback_mem(var data){
     setState(() {
@@ -34,6 +34,7 @@ class _SearchrecState extends State<Searchrec> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       backgroundColor: Color(0xFFfafafd),
       appBar: AppBar(
@@ -110,6 +111,8 @@ class _SearchrecState extends State<Searchrec> {
   }
 
   Widget buildJobWidget(Map<String, dynamic> jobData,Color containerColor) {
+    var size = MediaQuery.of(context).size;
+    var width=size.width;
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -164,9 +167,13 @@ class _SearchrecState extends State<Searchrec> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(jobData["open_position"],style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 18,color: Colors.white),),
+                      Container(
+                          width: width/1.6,
+                          child: Text(jobData["open_position"],style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 18,color: Colors.white),)),
                       SizedBox(height: 2),
-                      Text(jobData["company_name"],style: GoogleFonts.rubik(fontWeight: FontWeight.w300,fontSize: 15,color: Colors.white),)
+                      Container(
+                          width: width/1.6,
+                          child: Text(jobData["company_name"],style: GoogleFonts.rubik(fontWeight: FontWeight.w300,fontSize: 15,color: Colors.white),))
 
                     ],
                   ),
@@ -176,38 +183,44 @@ class _SearchrecState extends State<Searchrec> {
               Row(
                 children: [
                   Container(
+                    width: width/4,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: Colors.white38,
                       borderRadius: BorderRadius.circular(
                           10.0),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(jobData["open_position"],style: GoogleFonts.rubik(fontSize: 12),),
+                      padding: const EdgeInsets.all(0.0),
+                      child: Center(child: Text(jobData["open_position"]?? "",maxLines: 1,softWrap:true,overflow:TextOverflow.ellipsis,style: GoogleFonts.rubik(fontSize: 12),)),
                     ),
                   ),
                   Spacer(flex: 3,),
                   Container(
+                    width: width/4,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: Colors.white38,
                       borderRadius: BorderRadius.circular(
                           10.0),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(jobData["type"],style: GoogleFonts.rubik(fontSize: 12),),
+                      padding: const EdgeInsets.all(0.0),
+                      child: Center(child: Text(jobData["type"]?? "",style: GoogleFonts.rubik(fontSize: 12),)),
                     ),
                   ),
                   Spacer(flex: 3,),
                   Container(
+                    width: width/4,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: Colors.white38,
                       borderRadius: BorderRadius.circular(
                           10.0),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Text(jobData["experience"],style: GoogleFonts.rubik(fontSize: 12),),
+                      padding: const EdgeInsets.all(0.0),
+                      child: Center(child: Text(jobData["experience"]?? "",style: GoogleFonts.rubik(fontSize: 12),)),
                     ),
                   ),
                 ],
@@ -215,7 +228,7 @@ class _SearchrecState extends State<Searchrec> {
               SizedBox(height: 30),
               Row(
                 children: [
-                  Text(jobData["salary"],style: GoogleFonts.rubik(color: Colors.white,fontSize: 15),),
+                  Text(jobData["salary"]=="/null"?"Not given":jobData["salary"],style: GoogleFonts.rubik(color: Colors.white,fontSize: 15),),
                   Spacer(flex: 2,),
                   Text("${jobData["location"]},""Australia",style: GoogleFonts.rubik(color: Colors.white,fontSize: 15),)
 

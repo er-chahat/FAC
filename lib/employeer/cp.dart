@@ -83,7 +83,7 @@ class _CpState extends State<Cp> {
                                 padding: EdgeInsets.symmetric(horizontal: 8),
                                 child: TextField(
                                   controller: passscontroller,
-                                  obscureText: _isObscuree,
+                                  obscureText: _isObscureee,
                                   cursorColor: Color(0xFF2c444e),
                                   onChanged: (text) {
                                     setState(() {
@@ -116,14 +116,14 @@ class _CpState extends State<Cp> {
                                     ),
                                     suffixIcon: IconButton(
                                       icon: Icon(
-                                        _isObscuree
+                                        _isObscureee
                                             ? Icons.visibility_off_outlined
                                             : Icons.visibility_outlined,
                                         color: Colors.grey,
                                       ),
                                       onPressed: () {
                                         setState(() {
-                                          _isObscuree = !_isObscuree;
+                                          _isObscureee = !_isObscureee;
                                         });
                                       },
                                     ),

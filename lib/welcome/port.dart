@@ -20,6 +20,7 @@ class Port extends StatefulWidget {
 class _PortState extends State<Port> {
   File? _id;
   var base64Id;
+  var loading = false;
   String po = "";
   String des = "";
   TextEditingController poController = TextEditingController();
@@ -206,51 +207,10 @@ class _PortState extends State<Port> {
                             borderRadius: BorderRadius.circular(10))),
                     onPressed:base64Id != null && base64Id!.isNotEmpty
                         ?() async {
+                      setState(() {
+                        loading=true;
+                      });
                       print("hiiii");
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return AlertDialog(
-                            backgroundColor: Colors.white,
-                            content: Container(
-                              height: 250,
-                              width: 50,
-                              child: Center(
-                                child: Column(
-                                  children: [
-                                    Center(
-                                      child: SizedBox(
-                                          height: 120,
-                                          width: 120,
-                                          child: Image.asset(
-                                              "assets/thumbb.png")),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text(
-                                      "Uploaded",
-                                      style: GoogleFonts.rubik(
-                                          fontWeight:
-                                          FontWeight.w500,
-                                          fontSize: 20),
-                                    ),
-                                    Text(
-                                      "Sucessfully",
-                                      style: GoogleFonts.rubik(
-                                          fontWeight:
-                                          FontWeight.w500,
-                                          fontSize: 20),
-                                    ),
-                                    SizedBox(height: 20),
-
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      );
                       if(widget.isEdit==false)
                         Des(context);
                       if(widget.isEdit==true)
@@ -258,7 +218,7 @@ class _PortState extends State<Port> {
                     }
                         :null,
 
-                    child:  Text(
+                    child:  loading==true?Center(child: CircularProgressIndicator(color: Colors.white,)):Text(
                       "Save",
                       style: GoogleFonts.rubik(
                         color: Colors.white,
@@ -291,10 +251,60 @@ class _PortState extends State<Port> {
     print(jsondata);
     var er = jsondata["error"];
     if (res.statusCode == 200) {
+      setState(() {
+        loading=false;
+      });
       if (er == 0) {
-        Navigator.pop(context);
-        Navigator.pop(context);
-        widget.callback("");
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              content: Container(
+                height: 250,
+                width: 50,
+                child: Center(
+                  child: Column(
+                    children: [
+                      Center(
+                        child: SizedBox(
+                            height: 120,
+                            width: 120,
+                            child: Image.asset(
+                                "assets/thumbb.png")),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Uploaded",
+                        style: GoogleFonts.rubik(
+                            fontWeight:
+                            FontWeight.w500,
+                            fontSize: 20),
+                      ),
+                      Text(
+                        "Sucessfully",
+                        style: GoogleFonts.rubik(
+                            fontWeight:
+                            FontWeight.w500,
+                            fontSize: 20),
+                      ),
+                      SizedBox(height: 20),
+
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), (){
+          Navigator.pop(context);
+          Navigator.pop(context);
+          widget.callback("");
+        });
+
         //Navigator.pushNamedAndRemoveUntil(context, "wel",(route) => false);
         //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Mainprofile(),), (route) => false);
 
@@ -309,6 +319,9 @@ class _PortState extends State<Port> {
         );
       }
     } else {
+      setState(() {
+        loading=false;
+      });
       print('error');
     }
   }
@@ -330,12 +343,62 @@ class _PortState extends State<Port> {
     print("edit deiijef jkjfjejf ${jsondata}");
     var er = jsondata["error"];
     if (res.statusCode == 200) {
+      setState(() {
+        loading=false;
+      });
       if (er == 0) {
-        Navigator.pop(context);
-        Navigator.pop(context);
-        if(Navigator.canPop(context))
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.white,
+              content: Container(
+                height: 250,
+                width: 50,
+                child: Center(
+                  child: Column(
+                    children: [
+                      Center(
+                        child: SizedBox(
+                            height: 120,
+                            width: 120,
+                            child: Image.asset(
+                                "assets/thumbb.png")),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "Uploaded",
+                        style: GoogleFonts.rubik(
+                            fontWeight:
+                            FontWeight.w500,
+                            fontSize: 20),
+                      ),
+                      Text(
+                        "Sucessfully",
+                        style: GoogleFonts.rubik(
+                            fontWeight:
+                            FontWeight.w500,
+                            fontSize: 20),
+                      ),
+                      SizedBox(height: 20),
+
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+        Future.delayed(Duration(seconds: 2), (){
           Navigator.pop(context);
-        widget.callback("");
+          Navigator.pop(context);
+          if(Navigator.canPop(context))
+            Navigator.pop(context);
+          widget.callback("");
+        });
+
         //Navigator.pushNamedAndRemoveUntil(context, "wel",(route) => false);
         //Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Mainprofile(),), (route) => false);
 
@@ -350,6 +413,9 @@ class _PortState extends State<Port> {
         );
       }
     } else {
+      setState(() {
+        loading=false;
+      });
       print('error');
     }
   }

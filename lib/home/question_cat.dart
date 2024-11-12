@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:fac/home/ques_discription.dart';
+import 'package:fac/home/result.dart';
 import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -21,6 +22,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
   double percent=0;
   var data_test;
   var data_test1;
+  var recent_data;
   var test_taken;
   var category;
 
@@ -49,6 +51,126 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
         if(data["error"]==0){
           setState(() {
             category=data["deta"];
+            // percent = total/atmpt;
+          });
+          return  data;
+        }else{
+          setState(() {
+            category=[];
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Something went Wrong"),
+              duration: Duration(seconds: 2 ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            ),
+          );
+        }
+      }else{
+        setState(() {
+          category=[];
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went Wrong"),
+            duration: Duration(seconds: 2 ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+
+      }
+
+    }catch(e){
+      setState(() {
+        category=[];
+      });
+      print("your excepton is :::: $e");
+      // MotionToast.warning(
+      //     title:  Text("$e"),
+      //     description:  Text("try again later ")
+      // ).show(context);
+      //Get.snackbar('Exception',e.toString());
+    }
+  }
+  Future _recentTest() async {
+    try {
+      print("hello iam   the blogview");
+      var url = Uri.parse(
+          "$mainurl/user_test_detials.php");
+      Map mapdata = {
+        "updte":"1",
+        "user_id": user_id.toString(),
+      };
+      print("$mapdata");
+      print("hello");
+      //http.Response response = await http.post(url,body: mapdata);
+      http.Response response = await http.post(url, body: jsonEncode(mapdata));
+      print("hello");
+
+      var data = json.decode(response.body);
+      //print("its compleeter data ${copleteData}");
+
+      if(response.statusCode ==200){
+        print("your data 2 mesg data is :  HIIIIIIIIIIIIIIIII");
+        if(data["error"]==0){
+          setState(() {
+            recent_data=data["tests"];
+            // percent = total/atmpt;
+          });
+          return  data;
+        }else{
+          setState(() {
+            recent_data=[];
+          });
+        }
+      }else{
+        setState(() {
+          recent_data=[];
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went Wrong"),
+            duration: Duration(seconds: 2 ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    }catch(e){
+      setState(() {
+        recent_data=[];
+      });
+      print("your excepton is :::: $e");
+      // MotionToast.warning(
+      //     title:  Text("$e"),
+      //     description:  Text("try again later ")
+      // ).show(context);
+      //Get.snackbar('Exception',e.toString());
+    }
+  }
+  Future _getTest() async {
+    try {
+      print("hello iam   the blogview");
+      var url = Uri.parse(
+          "$mainurl/tests.php");
+      Map mapdata = {
+        "updte":"1",
+        "user_id": user_id.toString(),
+      };
+      print("$mapdata");
+      print("hello");
+      //http.Response response = await http.post(url,body: mapdata);
+      http.Response response = await http.post(url, body: jsonEncode(mapdata));
+      print("hello");
+
+      var data = json.decode(response.body);
+      //print("its compleeter data ${copleteData}");
+
+      if(response.statusCode ==200){
+        print("your data 2 mesg data is :  HIIIIIIIIIIIIIIIII");
+        if(data["error"]==0){
+          setState(() {
+            category=data["tests"];
             // percent = total/atmpt;
           });
           return  data;
@@ -210,14 +332,17 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
   void callback(String name){
     setState(() {
-      // _answer(name);
+      _recentTest();
+      _getTest();
 
     });
   }
 
   @override
   void initState() {
-    _getCateg();
+    //_getCateg();
+    _getTest();
+    _recentTest();
     // _answer("IQ Test");
     // _testTaken();
     // _subcat(1);
@@ -280,10 +405,16 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
               SizedBox(
                 height: 10,
               ),
-              Row(
+              if(recent_data == null)
+                CircularProgressIndicator(color: Colors.green,),
+              if(recent_data != null && recent_data.length==0)
+                Center(child: Text("No Record found!")),
+              if(recent_data !=null && recent_data.length >0)
+                Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
+                  for(int i =0;i<recent_data.length;i++)
+                    Container(
                     width: width/2.3,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
@@ -312,7 +443,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                             children: [
                               Container(
                                   width: width/2.4,
-                                  child: Text("IQ Test",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16,color: Colors.black),softWrap: true,overflow: TextOverflow.ellipsis,)),
+                                  child: Text("${recent_data[i]["category_name"]}",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16,color: Colors.black),softWrap: true,overflow: TextOverflow.ellipsis,)),
                               SizedBox(
                                 height: 4,
                               ),
@@ -320,7 +451,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text("Completed",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 12,color: Colors.black),),
-                                  Text("50 %",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 14,color: Colors.green),),
+                                  Text("${recent_data[i]["completed_percentage"]} %",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 14,color: Colors.green),),
                                 ],
                               ),
                               SizedBox(
@@ -332,7 +463,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                                 animation: true,
                                 animationDuration: 1000,
                                 lineHeight: 8.0,
-                                percent: 0.5,
+                                percent: recent_data[i]["completed_percentage"]/100,
 
                                 linearStrokeCap: LinearStrokeCap.roundAll,
                                 barRadius: Radius.circular(10),
@@ -344,68 +475,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                       ),
                     ),
                   ),
-                    Container(
-                      width: width/2.3,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Color(0xFFF8F7F9),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Container(
-                                //   height: 87,
-                                //   width: 93,
-                                //   child: SvgPicture.asset(
-                                //       prsnlty
-                                //   ),
-                                // ),
-                              ],
-                            ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
 
-                                Container(
-                                    width: width/2.4,
-                                    child: Text("IQ Tests",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16,color: Colors.black),softWrap: true,overflow: TextOverflow.ellipsis,)),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text("Completed",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 12,color: Colors.black),),
-                                    Text("20 %",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 14,color: Colors.green),),
-                                  ],
-                                ),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                LinearPercentIndicator(
-                                  padding: EdgeInsets.zero,
-                                  width: width/2.6,
-                                  animation: true,
-                                  animationDuration: 1000,
-                                  lineHeight: 8.0,
-                                  percent: 0.2,
-
-                                  linearStrokeCap: LinearStrokeCap.roundAll,
-                                  barRadius: Radius.circular(10),
-                                  progressColor: Colors.green,
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      ),
-                    ),
                 ],
               ),
               SizedBox(
@@ -421,7 +491,7 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 for(int i=0;i<category.length; i++)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 14.0),
-                    child: subcate(width, "",category[i]["category_name"], 2+i,i),
+                    child: subcate(width, "",category[i], 2+i,i),
                   ),
               // if(selected==0)
               //   data_test==null?Center(child: CircularProgressIndicator(color: theme_color,)):testIQ(width),
@@ -439,7 +509,23 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
 
   Widget subcate(var width,var img,var heading, var percent,var index)=>InkWell(
     onTap: ()async{
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>QuestionsDescription(cate: heading,callback: callback,)));
+      if(heading["total_questions"]==0){
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Questions not available"),
+            duration: Duration(seconds: 2),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }else{
+        if("${heading["total_questions"]}"==heading["completed_questions"]){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>ResultQuestion(cate: heading["category_name"],callback: callback,)));
+        }else{
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>QuestionsDescription(cate: heading,callback: callback,)));
+        }
+      }
+      //Navigator.push(context, MaterialPageRoute(builder: (context)=>QuestionsDescription(cate: heading,callback: callback,)));
       print("Yrs you are using correct play pagr::::::::::: ");
      // print("::::::::::::::::::::::::::::${(int.parse(data_test[index]["completed_questions"])/int.parse(data_test[index]["total_questions"]))/10}");
       //await player.play(AssetSource('sound/tune.mp3'));
@@ -472,11 +558,11 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                   children: [
                     Container(
                         width: width/2.1,
-                        child: Text(heading,style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,color: Colors.black),softWrap: true,overflow: TextOverflow.ellipsis,)),
+                        child: Text(heading["category_name"],style: TextStyle(fontWeight: FontWeight.w700,fontSize: 16,color: Colors.black),softWrap: true,overflow: TextOverflow.ellipsis,)),
                     SizedBox(
                       height: 4,
                     ),
-                    Text("4|10 completed",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14,color: Colors.black),),
+                    Text("${heading["completed_questions"]}|${heading["total_questions"]} completed",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14,color: Colors.black),),
                   ],
                 ),
               ],
@@ -490,11 +576,11 @@ class _QuestionsScreenState extends State<QuestionsScreen> {
                 radius: 34.0,
                 lineWidth: 6.0,
                 animation: true,
-                percent: percent/10,
+                percent: heading["total_questions"]==0?0.0:(int.parse(heading["completed_questions"])/heading["total_questions"]),
                 center: new Text(
-                  "${percent*10} %",
+                  "${heading["total_questions"]==0?0.0:((int.parse(heading["completed_questions"])/heading["total_questions"])*100).toStringAsFixed(0)} %",
                   style:
-                  new TextStyle(fontWeight: FontWeight.bold, fontSize: 14.0),),
+                  new TextStyle(fontWeight: FontWeight.bold, fontSize: 12.0),),
                 circularStrokeCap: CircularStrokeCap.round,
                 progressColor: Colors.green,
               ),

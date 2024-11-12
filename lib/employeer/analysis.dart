@@ -578,7 +578,7 @@ Widget vacancyContainer(dynamic vacancy) {
               ),
               SizedBox(height: 10),
               Text(
-                "${vacancy["salary"]}/y",
+                "${vacancy["salary"]=="/null"?"Not given":"${vacancy["salary"]}/y"}",
                 style: GoogleFonts.rubik(fontWeight: FontWeight.w400),
               ),
             ],

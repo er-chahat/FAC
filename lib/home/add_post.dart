@@ -25,6 +25,61 @@ class _AddPostState extends State<AddPost> {
   TextEditingController _salary = TextEditingController();
   TextEditingController _keySkill = TextEditingController();
   final GlobalKey<FormState> _key = GlobalKey();
+
+  String selectedValues = '';
+  bool saveOrNot = false;
+  List<String> _options =[];
+  List<String>  _option2 =[];
+  String codepin = '';
+  final TextEditingController _serchController = TextEditingController();
+
+  var getD ;
+  String? selectedOptionnnn;
+  var abc="";
+
+  searchapi(String value, String? state) async{
+    HashMap<String, dynamic> map = HashMap();
+    map["updte"] = "1";
+    map["state"] = state!;
+    map["city"] = value;
+
+    var res = await http.post(Uri.parse("$mainurl/location_city_search.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("harleen $map");
+    print(jsondata);
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      print("hello api search data is $jsondata");
+      //List<dynamic> skillsList = jsondata["user_skills"];
+      //           setState(() {
+      //             userSkills = skillsList.map((skill) => skill["state"].toString()).toList();
+      //             locselected=userSkills[0];
+      //           });
+      if(er==0){
+        List<dynamic> all = jsondata["location"] ;
+        setState(() {
+          _options = all.map((alldat)=> alldat["city"].toString()).toList();
+          _option2 = all.map((alldat)=> alldat["pincode"].toString()).toList();
+        });
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went worng"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    } else {
+      print('error');
+    }
+
+  }
+
   List<String> itemList = [
     'Full-Time',
     'Part-Time',
@@ -67,9 +122,9 @@ class _AddPostState extends State<AddPost> {
         "job_name": subTypCont[0],
         "job_name_two": subTypCont[1],
         "job_name_three":subTypCont[2],
-        "salary_exp": _salary.text,
+        "salary_exp": abc == ""?_salary.text:abc,
         "state": locselected,
-        "city": pinselected,
+        "city": "$selectedValues ($codepin)",
         //"category_name": widget.heading,
       };
       print("$mapdata");
@@ -144,6 +199,51 @@ class _AddPostState extends State<AddPost> {
       //Get.snackbar('Exception',e.toString());
     }
   }
+  getData(context) async {
+    HashMap<String, String> map = HashMap();
+    map["updte"] = "1";
+    map["user_id"] = user_id.toString();
+
+    var res = await http.post(
+        Uri.parse("$mainurl/get_user_jop_filter_deta.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("i harleen here ::::::::::::::::::::::::::::::: ::::::::::::::::::::::::::::::::::::: $map");
+    print("hello get data for autofill $jsondata");
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      if (er == 0) {
+        setState(() {
+          getD=jsondata;
+          if(jsondata["job_type"] != null && jsondata["job_type"]!="") {
+            print("yes i am inside it");
+            subTypCont.add(jsondata["job_name"]);
+            subTypCont.add(jsondata["job_name_two"]);
+            subTypCont.add(jsondata["job_name_three"]);
+            jobTypCont.add(jsondata["job_type"]);
+            jobTypCont.add(jsondata["job_type_two"]);
+            jobTypCont.add(jsondata["job_type_three"]);
+          }
+          if(jsondata["employment"]!=null && jsondata["employment"] !=""){
+            selectedItem = jsondata["employment"];
+          }
+        });
+
+      } else {
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went Wrong"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+
+      }
+    }
+  }
   locations(context) async {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
@@ -162,7 +262,15 @@ class _AddPostState extends State<AddPost> {
           setState(() {
             List<dynamic> skillsList = jsondata["user_skills"];
             userSkills = skillsList.map((skill) => skill["state"].toString()).toList();
-            locselected=userSkills[0];
+            print("helo its gd $getD");
+            //locselected = userSkills[0];
+            if( getD == null || getD["city"]=="" ) {
+              print("hello its selected location");
+              locselected = userSkills[0];
+            }else{
+              print("city i skjdfj f ${getD["state"]}");
+              locselected = getD["state"];
+            }
             if(userSkillss.isEmpty || userSkillss == []){
               PinCode(context, "");
             }
@@ -290,8 +398,16 @@ class _AddPostState extends State<AddPost> {
             userSkillss = skillsList.map((skill) => "${skill["city"]}(${skill["pincode"]})").toList();
             pinselected=userSkillss[0];
             print("your locselected ::::::: $pinselected");
+            // pinselected = pin;
+            print("ot os coty ${getD["city"]}");
             if(pin !=""){
-              pinselected=pin;
+              print("ot os coty ${getD["city"]}");
+              if(getD == null || getD["city"]=="") {
+                pinselected = pin;
+              }else{
+                print("ot os coty ${getD["city"]}");
+                pinselected=getD["city"];
+              }
             }
           }
         });
@@ -313,6 +429,7 @@ class _AddPostState extends State<AddPost> {
   }
   @override
   void initState() {
+    getData(context);
     locations(context);
     jobTypes(context);
     // TODO: implement initState
@@ -740,49 +857,100 @@ class _AddPostState extends State<AddPost> {
                           ],
                         ),
                         SizedBox(height: 5,),
-                        DropdownButtonFormField(
-                          // isDense: true,
-                          validator: (value){
-                            if(value == null || value!.isEmpty){
-                              return "Please select";
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            hintText: "Suburbs",
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8,right: 8),
+                          child: Container(
+                            height: 50,
+                            child: TextFormField(
+                              controller: _serchController,
+                              decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                border: OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                suffixIcon: Autocomplete<String>(
+                                  optionsBuilder: (TextEditingValue textEditingValue) async {
+                                    if (textEditingValue.text.isEmpty) {
+                                      return const Iterable<String>.empty();
+                                    }
+                                    await searchapi(textEditingValue.text, locselected);
+                                    return _options;
+                                  },
+                                  onSelected: (String selection) {
+                                    setState(() {
+                                      _serchController.text = selection;
+                                      int index = _options.indexOf(selection);
+                                      selectedValues = selection;
+                                      codepin = _option2[index];
+                                    });
+                                    print('You selected: $selection');
+                                  },
+                                  fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                    return TextFormField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      style: GoogleFonts.rubik(),
+                                      decoration: InputDecoration(
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                                        hintText: "Search Suburb",
+                                        hintStyle: GoogleFonts.rubik(color: Colors.grey),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.grey),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.grey),
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                      ),
+                                      onFieldSubmitted: (value) {
+                                        onFieldSubmitted();
+                                      },
+                                    );
+                                  },
+                                  optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                                    return Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Material(
+                                        elevation: 4.0,
+                                        child: Container(
+                                          height: 200.0,
+                                          color: Colors.white,
+                                          child: ListView.builder(
+                                            padding: EdgeInsets.all(8.0),
+                                            itemCount: options.length,
+                                            itemBuilder: (BuildContext context, int index) {
+                                              final String option = options.elementAt(index);
+                                              return GestureDetector(
+                                                onTap: () {
+                                                  onSelected(option);
+                                                },
+                                                child: ListTile(
+                                                  title: Text("$option (${_option2[index]})"),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                          ),
-                          value: pinselected,
-                          onChanged: (selectedItem) {
-                            setState(() {
-                              this.pinselected = selectedItem!;
-                            });
-                          },
-                          items: userSkillss
-                              .map((String item) => DropdownMenuItem(
-                            value: item,
-                            child: Container(
-                                width: MediaQuery.of(context).size.width/2,
-                                child: Text(item,softWrap: true,maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                          ))
-                              .toList(),
-                          icon: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.grey,
                           ),
                         ),
                         SizedBox(height: 16.0),
@@ -794,81 +962,112 @@ class _AddPostState extends State<AddPost> {
                           ],
                         ),
                         SizedBox(height: 5,),
-                        TextFormField(
-                          controller: _salary,
-                          maxLines: 3,
-                          minLines: 1,
-                          keyboardType: TextInputType.number,
-                          validator: (value){
-                            if(value == null || value!.isEmpty){
-                              return "Enter Salary";
-                            }
-                            return null;
-                          },
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey), // Set the border color
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey), // Set the border color
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            hintText: "per month",
-                          ),
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
-                        SizedBox(height: 16.0),
                         Row(
                           children: [
-                            Text("About Interest",style: GoogleFonts.rubik(fontWeight: FontWeight.w600,fontSize: 17),),
-                            Text("*",style: GoogleFonts.rubik(fontWeight: FontWeight.w600,fontSize: 17,color: Colors.red),),
-
+                            Expanded(
+                              child: TextFormField(
+                                controller: _salary,
+                                maxLines: 3,
+                                minLines: 1,
+                                keyboardType: TextInputType.number,
+                                validator: (value){
+                                  if(value == null || value!.isEmpty){
+                                    return "Enter Salary";
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 16),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey), // Set the border color
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey), // Set the border color
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  hintText: "per month",
+                                ),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            DropdownButton<String>(
+                              value: selectedOptionnnn,
+                              hint: Text("   Type", style: TextStyle(color: Colors.grey)),
+                              icon: Icon(Icons.arrow_drop_down),
+                              iconSize: 24,
+                              elevation: 16,
+                              style: TextStyle(color: Colors.black),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedOptionnnn = newValue!;
+                                  print(_salary.text);
+                                  print(selectedOptionnnn);
+                                  abc="${_salary.text}/${selectedOptionnnn}";
+                                  print(abc);
+                                });
+                              },
+                              items: <String>['Year', 'Hour']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                            ),
                           ],
                         ),
-                        SizedBox(height: 5,),
-                        TextFormField(
-                          controller: _desc,
-                          validator: (value){
-                            if(value == null || value!.isEmpty){
-                              return "Enter description";
-                            }
-                            return null;
-                          },
-                          maxLines: null, // Allows unlimited lines of text
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Colors.white,
-                            contentPadding:
-                            EdgeInsets.symmetric(horizontal: 16),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey), // Set the border color
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.grey), // Set the border color
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            hintText: "Write here....",
-                          ),
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                          ),
-                        ),
+                        SizedBox(height: 16.0),
+                        // Row(
+                        //   children: [
+                        //     Text("About Interest",style: GoogleFonts.rubik(fontWeight: FontWeight.w600,fontSize: 17),),
+                        //     Text("*",style: GoogleFonts.rubik(fontWeight: FontWeight.w600,fontSize: 17,color: Colors.red),),
+                        //
+                        //   ],
+                        // ),
+                        // SizedBox(height: 5,),
+                        // TextFormField(
+                        //   controller: _desc,
+                        //   validator: (value){
+                        //     if(value == null || value!.isEmpty){
+                        //       return "Enter description";
+                        //     }
+                        //     return null;
+                        //   },
+                        //   maxLines: null, // Allows unlimited lines of text
+                        //   decoration: InputDecoration(
+                        //     filled: true,
+                        //     fillColor: Colors.white,
+                        //     contentPadding:
+                        //     EdgeInsets.symmetric(horizontal: 16),
+                        //     enabledBorder: OutlineInputBorder(
+                        //       borderSide: BorderSide(color: Colors.grey), // Set the border color
+                        //       borderRadius: BorderRadius.circular(10),
+                        //     ),
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderSide: BorderSide(color: Colors.grey),
+                        //       borderRadius: BorderRadius.circular(10),
+                        //     ),
+                        //     border: OutlineInputBorder(
+                        //       borderSide: BorderSide(color: Colors.grey), // Set the border color
+                        //       borderRadius: BorderRadius.circular(10),
+                        //     ),
+                        //     hintText: "Write here....",
+                        //   ),
+                        //   style: TextStyle(
+                        //     fontWeight: FontWeight.normal,
+                        //   ),
+                        // ),
 
                         // Add any additional widgets here, such as buttons or other controls
                       ],
@@ -889,7 +1088,7 @@ class _AddPostState extends State<AddPost> {
                       width: width,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color: Colors.green.shade800,
+                        color: Color(0xFF118743),
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(14.0),

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:fac/gemini/gemini_chat.dart';
 import 'package:fac/home/mainprofile.dart';
 import 'package:fac/starting/splashscreen.dart';
 import 'package:http/http.dart' as http;
@@ -67,6 +68,9 @@ class UserbottomState extends State<Userbottom> {
               Navigator.pushReplacementNamed(context, "notification");
               break;
             case 4:
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>GeminiAI()));
+              break;
+            case 5:
               Navigator.pushReplacementNamed(context, "ud");
               break;
           }
@@ -143,6 +147,10 @@ class UserbottomState extends State<Userbottom> {
                 ),
             ],
           ),
+          label: '.',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.chat_bubble_outlined),
           label: '.',
         ),
         BottomNavigationBarItem(

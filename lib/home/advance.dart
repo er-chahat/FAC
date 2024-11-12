@@ -24,6 +24,12 @@ class _AdvanceState extends State<Advance> {
   List<String> userSkillss = [];
   String? pinselected;
 
+  String selectedValues = '';
+  List<String> _options =[];
+  List<String>  _option2 =[];
+  String codepin = '';
+  final TextEditingController _serchController = TextEditingController();
+
   String role = "";
   TextEditingController rolecontroller = TextEditingController();
 
@@ -52,6 +58,49 @@ class _AdvanceState extends State<Advance> {
         userSkillss.clear();
       locations(context);
     });
+  }
+
+  searchapi(String value, String? state) async{
+    HashMap<String, dynamic> map = HashMap();
+    map["updte"] = "1";
+    map["state"] = state!;
+    map["city"] = value;
+
+    var res = await http.post(Uri.parse("$mainurl/location_city_search.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("harleen $map");
+    print(jsondata);
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      print("hello api search data is $jsondata");
+      //List<dynamic> skillsList = jsondata["user_skills"];
+      //           setState(() {
+      //             userSkills = skillsList.map((skill) => skill["state"].toString()).toList();
+      //             locselected=userSkills[0];
+      //           });
+      if(er==0){
+        List<dynamic> all = jsondata["location"] ;
+        setState(() {
+          _options = all.map((alldat)=> alldat["city"].toString()).toList();
+          _option2 = all.map((alldat)=> alldat["pincode"].toString()).toList();
+        });
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went worng"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    } else {
+      print('error');
+    }
+
   }
 
 
@@ -237,50 +286,96 @@ class _AdvanceState extends State<Advance> {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 8,right: 8),
-                child: TextFormField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Colors.white,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    border: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    suffixIcon: Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: DropdownButton<String>(
-                        isExpanded: true,
-
-                        style: TextStyle(fontSize: 14, color: Colors.black),
-                        hint: Text("Suburb", style: TextStyle(color: Colors.grey)),
-                        value: pinselected,
-                        onChanged: (selectedItem) {
-                          setState(() {
-                            this.pinselected = selectedItem!;
-                          });
+                child: Container(
+                  height: 50,
+                  child: TextFormField(
+                    controller: _serchController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      suffixIcon: Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) async {
+                          if (textEditingValue.text.isEmpty) {
+                            return const Iterable<String>.empty();
+                          }
+                          await searchapi(textEditingValue.text, locselected);
+                          return _options;
                         },
-                        items: userSkillss
-                            .map((String item) => DropdownMenuItem(
-                          value: item,
-                          child: Text(item),
-                        ))
-                            .toList(),
-                        icon: Padding(
-                          padding: EdgeInsets.only(left: 20),
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            color: Colors.grey,
-                          ),
-                        ),
+                        onSelected: (String selection) {
+                          setState(() {
+                            _serchController.text = selection;
+                            pinselected=selection;
+                            int index = _options.indexOf(selection);
+                            selectedValues = selection;
+                            codepin = _option2[index];
+                          });
+                          print('You selected: $selection');
+                        },
+                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            style: GoogleFonts.rubik(),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                              hintText: "Search Suburb",
+                              hintStyle: GoogleFonts.rubik(color: Colors.grey),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onFieldSubmitted: (value) {
+                              onFieldSubmitted();
+                            },
+                          );
+                        },
+                        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: Material(
+                              elevation: 4.0,
+                              child: Container(
+                                height: 200.0,
+                                color: Colors.white,
+                                child: ListView.builder(
+                                  padding: EdgeInsets.all(8.0),
+                                  itemCount: options.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    final String option = options.elementAt(index);
+                                    return GestureDetector(
+                                      onTap: () {
+                                        onSelected(option);
+                                      },
+                                      child: ListTile(
+                                        title: Text("$option (${_option2[index]})"),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -347,7 +442,7 @@ class _AdvanceState extends State<Advance> {
                 width: double.infinity,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green[700],
+                    backgroundColor: Color(0xFF118743),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20.0),
                     ),

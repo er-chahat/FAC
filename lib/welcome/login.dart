@@ -33,6 +33,8 @@ class Login extends StatefulWidget {
 }
 
 class LoginState extends State<Login> {
+  static const String TOKEN ="token";
+  static const String LOGIN ="login";
   
   var fbname="";
   var fbemail="";
@@ -113,15 +115,17 @@ class LoginState extends State<Login> {
 
     Future<void> _checkIfIsLogged() async {
     final accessToken = await FacebookAuth.instance.accessToken;
-
+    print("hello hi _checkIfIsLoggedCalled");
     if (accessToken != null) {
       print("is Logged:::: ${prettyPrint(accessToken.toJson())}");
+      print("hello hi _checkIfIsLoggedCalled");
       // now you can call to  FacebookAuth.instance.getUserData();
       final userData = await FacebookAuth.instance.getUserData();
       // final userData = await FacebookAuth.instance.getUserData(fields: "email,birthday,friends,gender,link");
       _accessToken = accessToken;
       setState(() {
         _userData = userData;
+        print("hello hi _checkIfIsLoggedCalled123");
         _printCredentials();
       });
     }
@@ -148,6 +152,7 @@ class LoginState extends State<Login> {
   }
 
   loginme(context) async {
+    print("hello hi _checkIfIsLoggedCalled login me");
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
     map["facebook"] = "facebook";
@@ -157,7 +162,7 @@ class LoginState extends State<Login> {
     map["user_type"] = type;
     map["fcm_token"] = token.toString();
 
-    var res = await http.post(Uri.parse("http://103.99.202.191/fac/api/signin.php"),
+    var res = await http.post(Uri.parse("http://110.173.135.111/fac/api/signin.php"),
         body: jsonEncode(map));
     print("=====infblogin======");
     print(map);
@@ -167,6 +172,7 @@ class LoginState extends State<Login> {
     print(jsondata);
     var pref = await SharedPreferences.getInstance();
     if (res.statusCode == 200) {
+      print("hello hi _checkIfIsLoggedCalled api ");
       print("yuppsss");
       print(jsondata["session"]);
       print(jsondata["user_id"]);
@@ -199,8 +205,10 @@ class LoginState extends State<Login> {
     print(_userData);
     print("Access Token:");
     print(prettyPrint(_accessToken!.toJson()));
+    print("hello hi _checkIfIsLoggedCalled 98765");
     print(_userData);
     if (_userData != null) {
+      print("hello hi _checkIfIsLoggedCalled print");
       print("User Data:");
       print("Name: ${_userData!['name']}");
       print("Email: ${_userData!['email']}");
@@ -374,6 +382,7 @@ class LoginState extends State<Login> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         hintText: "User",
+                        hintStyle: GoogleFonts.rubik(color: Colors.grey),
                       ),
                     ),
                   ),
@@ -424,12 +433,13 @@ class LoginState extends State<Login> {
                           },
                         ),
                         hintText: "Password",
+                        hintStyle: GoogleFonts.rubik(color: Colors.grey),
                       ),
                     ),
                   ),
                   SizedBox(height: 15),
                   Container(
-                    width: MediaQuery.of(context).size.width / 1.3,
+                    width: 140,
                     height: 45,
                     child: TextButton(
                       style: TextButton.styleFrom(
@@ -437,6 +447,8 @@ class LoginState extends State<Login> {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10))),
                       onPressed: () async {
+                        print("dfghjkl; login");
+                        print("dfghjkl; login");
                         await context.read<LoginAPI>().logg(
                             context, pwordcontroller.text, namecontroller.text);
                       },
@@ -541,7 +553,7 @@ class LoginState extends State<Login> {
                                   height: 10,
                                 ),
                                 Text(
-                                  "Enter your email for the verification proccess,We will send 4 digits code to your email.",
+                                  "Enter your email for the verification process,We will send 4 digits code to your email.",
                                   style: GoogleFonts.rubik(color: Colors.grey),
                                 ),
                                 SizedBox(

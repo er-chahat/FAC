@@ -15,6 +15,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import '../home/de.dart';
+import '../welcome/choose.dart';
 class Talentpool extends StatefulWidget {
   const Talentpool({super.key});
 
@@ -47,7 +50,15 @@ class _TalentpoolState extends State<Talentpool> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -101,7 +112,7 @@ class _TalentpoolState extends State<Talentpool> {
     }
   }
   void startDownloading(var filename) async{
-    String url ='http://103.99.202.191/fac/cv/$filename';
+    String url ='http://110.173.135.111/fac/cv/$filename';
     // const String fileName="Doc8.docx";
     //print("file path ::: ::::::: ::::$fileName ");
     String path = await _getFilePaths(filename);
@@ -430,7 +441,24 @@ class _TalentpoolState extends State<Talentpool> {
                           Row(
                             children: [
                               Container(
-                                child: Image(image: NetworkImage("$photo/${talent["profile_img"]}"), height: 65, width: 50,),
+                                child: Image(
+                                  image: NetworkImage("$photo/${talent["profile_img"]}"),
+                                  errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(
+                          height: 55,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200], // Placeholder background color
+                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                          ),
+                          child: Icon(
+                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                            size: 30,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
+                                  height: 65, width: 50,),
                               ),
                               SizedBox(width: 10,),
                               Column(
@@ -656,7 +684,8 @@ class _TalentpoolState extends State<Talentpool> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        Navigator.pushNamed(context, "de");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>De(cate: "",user_id: "",)));
+        // Navigator.pushNamed(context, "de");
       } else {
 
         ScaffoldMessenger.of(context).showSnackBar(

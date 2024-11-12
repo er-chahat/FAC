@@ -118,6 +118,21 @@ class _JobState extends State<Job> {
                                         borderRadius: BorderRadius.circular(75),
                                         child: Image(
                                           image: NetworkImage("$photo/$iggg"),
+                                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                            return Container(
+                                              height: 55,
+                                              width: 55,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[200], // Placeholder background color
+                                                borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                              ),
+                                              child: Icon(
+                                                Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                                size: 30,
+                                                color: Colors.grey[400],
+                                              ),
+                                            );
+                                          },
                                           height: 150,
                                           width: 150,
                                         ),
@@ -335,9 +350,9 @@ class _JobState extends State<Job> {
           width: double.infinity,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
+              backgroundColor: Color(0xFF118743),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
+                borderRadius: BorderRadius.circular(10.0),
               ),
             ),
             onPressed: () {

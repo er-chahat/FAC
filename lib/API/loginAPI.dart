@@ -28,6 +28,7 @@ class LoginAPI with ChangeNotifier {
     map["password"] = password;
     map["email_id"] = email;
     map["fcm_token"] = token.toString();
+    map["user_type"]=type;
 
     var res = await http.post(Uri.parse("$mainurl/signin.php"),
         body: jsonEncode(map));

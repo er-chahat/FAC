@@ -1,6 +1,9 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:fac/home/question.dart';
+import 'package:fac/home/question_cat.dart';
 import 'package:fac/home/subb.dart';
+import 'package:fac/home/usermsg.dart';
 import 'package:fac/welcome/login.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart'as http;
@@ -20,9 +23,14 @@ var check="";
 var op;
 var recrow="";
 
+
 class _RecjobState extends State<Recjob> {
   int selectedButtonIndex = 0;
-  List<Map<String, dynamic>> jobVacancies = [];
+  var jobVacancies;
+  var showTest;
+  var testCom;
+  var cate_id;
+  var cate_name;
   var sal;
   var loc;
   var type;
@@ -36,14 +44,63 @@ class _RecjobState extends State<Recjob> {
   var errormsgg="";
   var xyz="";
   double ratinggg=0.0;
+  var showsub = false;
+
   void callback_mem(var data){
     setState(() {
       membershipDetails(context);
     });
   }
+  Future<void> showSub(BuildContext context) async {
+    print("hi");
+    HashMap<String, String> map = HashMap();
+    map["updte"] = "1";
+
+    var res = await http.post(Uri.parse("$mainurl/subscription_switch.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("::::::::::::::::$jsondata");
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      if (er == 0) {
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
+          setState(() {
+            showsub=true;
+          });
+        }else{
+          setState(() {
+            showsub=false;
+          });
+        }
+
+      } else {
+        // if(userPorti.isNotEmpty){
+        //   userPorti.clear();
+        //   portfolioImages.clear();
+        // }
+      }
+    } else {
+      print('error');
+    }
+  }
+  void callback(var data){
+    setState(() {
+      onjob();
+    });
+  }
 
   @override
   void initState() {
+    showSub(context);
     print("Innner Job >>>>>>> nnnnnnnnnnnnnnnnnnnn");
     print("nnnnnn job >>>>>> nnnnnnnnnnn");
     onjob();
@@ -54,9 +111,32 @@ class _RecjobState extends State<Recjob> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: (jobVacancies == null || jobVacancies.isEmpty)?AppBar(
+        backgroundColor: Colors.transparent,
+        leading: InkWell(
+            onTap: (){
+              Navigator.pop(context);
+            },
+            child: Icon(Icons.arrow_back_ios_new,color: Colors.black,)),
+      ):AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0.0,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
+        ),
+      ),
       backgroundColor: Color(0xFFfafafd),
-      body: SingleChildScrollView(
+      body: jobVacancies == null?Center(child: CircularProgressIndicator(color: Color(0xFF118743),)):jobVacancies.isEmpty?Center(child: Text("No Job available",style: TextStyle(color: Colors.black),)):SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (jobVacancies.isNotEmpty && jobVacancies!= null)
               Wrap(
@@ -74,7 +154,7 @@ class _RecjobState extends State<Recjob> {
                           borderRadius: BorderRadius.circular(35.0),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.all(20.0),
+                          padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: [
                               SizedBox(height: 20,),
@@ -90,6 +170,21 @@ class _RecjobState extends State<Recjob> {
                                         borderRadius: BorderRadius.circular(75),
                                         child: Image(
                                           image: NetworkImage("$photo/$iggg"),
+                                          errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                            return Container(
+                                              height: 55,
+                                              width: 55,
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[200], // Placeholder background color
+                                                borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                              ),
+                                              child: Icon(
+                                                Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                                size: 30,
+                                                color: Colors.grey[400],
+                                              ),
+                                            );
+                                          },
                                           height: 150,
                                           width: 150,
                                         ),
@@ -143,10 +238,11 @@ class _RecjobState extends State<Recjob> {
                                       height: 10,
                                     ),
                                     Padding(
-                                      padding: const EdgeInsets.all(5.0),
+                                      padding: const EdgeInsets.all(0.0),
                                       child: Row(
                                         children: [
                                           Container(
+                                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width/2.8),
                                             decoration: BoxDecoration(
                                               color: Colors.white38,
                                               borderRadius:
@@ -154,13 +250,14 @@ class _RecjobState extends State<Recjob> {
                                             ),
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
-                                              child: Text(op,style: GoogleFonts.rubik(),),
+                                              child: Text(op,style: GoogleFonts.rubik(),overflow: TextOverflow.ellipsis,softWrap: true,),
                                             ),
                                           ),
                                           Spacer(
                                             flex: 3,
                                           ),
                                           Container(
+                                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width/4.2),
                                             decoration: BoxDecoration(
                                               color: Colors.white38,
                                               borderRadius:
@@ -168,13 +265,14 @@ class _RecjobState extends State<Recjob> {
                                             ),
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
-                                              child: Text(type,style: GoogleFonts.rubik(),),
+                                              child: Text(type,style: GoogleFonts.rubik(),overflow: TextOverflow.ellipsis,softWrap: true,),
                                             ),
                                           ),
                                           Spacer(
                                             flex: 3,
                                           ),
                                           Container(
+                                            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width/3.4),
                                             decoration: BoxDecoration(
                                               color: Colors.white38,
                                               borderRadius:
@@ -182,7 +280,7 @@ class _RecjobState extends State<Recjob> {
                                             ),
                                             child: Padding(
                                               padding: const EdgeInsets.all(8.0),
-                                              child: Text(ex,style: GoogleFonts.rubik(),),
+                                              child: Text(ex,style: GoogleFonts.rubik(),overflow: TextOverflow.ellipsis,softWrap: true,),
                                             ),
                                           ),
                                         ],
@@ -192,7 +290,7 @@ class _RecjobState extends State<Recjob> {
                                     Row(
                                       children: [
                                         Text(
-                                          sal,
+                                          sal=="/null"?"Not given":"\$ $sal",
                                           style: GoogleFonts.rubik(
                                               color: Colors.white, fontSize: 17),
                                         ),
@@ -213,24 +311,6 @@ class _RecjobState extends State<Recjob> {
                                 height: 20,
                               )
                             ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: AppBar(
-                          backgroundColor: Colors.transparent,
-                          elevation: 0.0,
-                          leading: IconButton(
-                            onPressed: () {
-                              Navigator.pop(context);
-                            },
-                            icon: Icon(
-                              Icons.arrow_back_ios,
-                              color: Colors.white,
-                            ),
                           ),
                         ),
                       ),
@@ -298,40 +378,58 @@ class _RecjobState extends State<Recjob> {
           ],
         ),
       ),
-      bottomNavigationBar:
-      Padding(
+      bottomNavigationBar: jobVacancies == null?Center(child: CircularProgressIndicator(color: Color(0xFF118743),)):jobVacancies.isEmpty?Container(height: 2,):Padding(
         padding: const EdgeInsets.all(10.0),
         child: Container(
           height: 50,
           width: double.infinity,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
+              backgroundColor: Color(0xFF118743),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
+                borderRadius: BorderRadius.circular(10.0),
               ),
             ),
             onPressed: () {
-            if(check=="No")
-              {
-                if (errormsgg=="Please Purchase Subscription")
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>Subb(callback:callback_mem)));
-                if (jobVacancies.isNotEmpty && jobVacancies!= null)
-                  Navigator.pushNamed(context, "ja");
+              if(check=="No") {
+                if(showsub == true) {
+                  if (errormsgg == "Please Purchase Subscription") {
+                    Navigator.push(context, MaterialPageRoute(
+                        builder: (context) => Subb(callback: callback_mem)));
+                  } else if (jobVacancies.isNotEmpty && jobVacancies != null) {
+                      Navigator.pushReplacementNamed(context, "ja");
+                  }
+                }else{
+                  if (jobVacancies.isNotEmpty && jobVacancies != null) {
+                      Navigator.pushReplacementNamed(context, "ja");
+                  }
+                }
               }else if(check=="Yes"){
-              Navigator.pushNamed(context, "usermain");
-            }
+                if(showTest == "Yes"){
+                  if(testCom != "Yes"){
+                      Navigator.push(context, MaterialPageRoute(builder: (
+                          context) =>
+                          QuestionOptions(cate: cate_id,
+                              callback: callback,
+                              moveResult: true,job_aply_id: "${love}",)));
+                  }else{
+                    Navigator.pushNamed(context, "usermain");
+                  }
+                }else {
+                  Navigator.pushNamed(context, "usermain");
+                }
+              }
             },
             child: Text(
-                check == "Yes" ? "Message" : "Next",
+              check == "Yes" ? showTest == "Yes" ? testCom != "Yes"?"Complete Test":"Message" :"Message" : "Next",
               style: GoogleFonts.baloo2(color: Colors.white,fontSize: 20),
             ),
           ),
         ),
       ),
-
     );
   }
+
 
   TextButton buildTextButton(int index, String text) {
     return TextButton(
@@ -417,7 +515,7 @@ class _RecjobState extends State<Recjob> {
                         ),
                       ),
                       TextSpan(
-                        text: "Salary: $sal",
+                        text: "Salary: ${sal=="/null"?"Not given":"\$ ${sal}"}",
                         style: TextStyle(
                           fontSize: 17.0,
                           color: Colors.black54,
@@ -477,6 +575,7 @@ class _RecjobState extends State<Recjob> {
 
                 SizedBox(height: 10,),
                 RichText(
+                  textAlign: TextAlign.justify,
                   text: TextSpan(
                     children: [
                       WidgetSpan(
@@ -489,8 +588,9 @@ class _RecjobState extends State<Recjob> {
                           ),
                         ),
                       ),
+
                       TextSpan(
-                        text: "Company Description: $cd",
+                        text: "Job Description: $cd",
                         style: TextStyle(
                           fontSize: 17.0,
                           color: Colors.black54,
@@ -530,7 +630,7 @@ class _RecjobState extends State<Recjob> {
                               ),
                             ),
                             TextSpan(
-                              text: "Requirement: ${vacancy["requirements"]}",
+                              text: "${vacancy["requirements"]}",
                               style: TextStyle(
                                 fontSize: 17.0,
                                 color: Colors.black54,
@@ -621,55 +721,81 @@ class _RecjobState extends State<Recjob> {
 
     if (jsondata["error"] == 0) {
       print("okkkkkk");
-      setState(() {
-        op = jsondata["open_position"];
-        sal = jsondata["salary"];
-        loc = jsondata["location"];
-        type = jsondata["type"];
-        ex = jsondata["experience"];
-        jd = jsondata["job_description"];
-        cd = jsondata["company_description"];
-        ey = jsondata["established_year"];
-        add = jsondata["address"];
-        st = jsondata["location"];
-        iggg = jsondata["jop_image"];
-        xyz= jsondata["employer_id"];
-        check=jsondata["applied"];
-        ratinggg = jsondata["rating"].toDouble();
+      if(jsondata["error_msg"] != "Job Vacancy Detials not found") {
+        print("okkkkkk");
+        setState(() {
+          op = jsondata["open_position"] ?? "";
+          sal = jsondata["salary"] ?? "";
+          loc = jsondata["location"] ?? "";
+          type = jsondata["type"] ?? "";
+          ex = jsondata["experience"] ?? "";
+          jd = jsondata["job_description"] ?? "";
+          cd = jsondata["job_description"] ?? "";
+          ey = jsondata["established_year"] ?? "";
+          add = jsondata["address"] ?? "";
+          st = jsondata["location"] ?? "";
+          iggg = jsondata["jop_image"] ?? "";
+          xyz = jsondata["employer_id"] ?? "";
+          check = jsondata["applied"] ?? "";
+          showTest = jsondata["employers_question_add"] ?? "";
+          testCom = jsondata["test_complete"] ?? "";
+          cate_id = jsondata["category_id"] ?? "";
+          cate_name = jsondata["category_name"] ?? "";
+          cclogo = jsondata["company_logo"] ?? "";
+          ccname = jsondata["company_name"] ?? "";
+          ccemail = jsondata["email_id"] ?? "";
+          love = jsondata["user_apply_jop_id"] ?? "";
+          ratinggg = jsondata["rating"].toDouble() ?? "";
 
-        recrow=jsondata["rows"].toString();
-        print(recrow);
+          recrow = jsondata["rows"].toString();
+          print(recrow);
 
-        if (jsondata["rows"] != 0 ) {
-          print("neeraj");
-          jobVacancies =
-          List<Map<String, dynamic>>.from(jsondata["jop_vacancy"]);
-          print(jobVacancies);
-        }else{
-          print("ritesh");
-          jobVacancies.clear();
-          print(jobVacancies);
-        }
-      });
-
+          if (jsondata["rows"] != 0) {
+            print("neeraj");
+            jobVacancies =
+            List<Map<String, dynamic>>.from(jsondata["jop_vacancy"]);
+            print(jobVacancies);
+          } else {
+            print("ritesh");
+            jobVacancies.clear();
+            print(jobVacancies);
+          }
+        });
+      }else{
+        setState(() {
+          jobVacancies =[];
+        });
+        print("hwlo else ${jobVacancies.isEmpty}");
+      }
+      print("okkkksdjfkkk");
       WidgetsBinding.instance?.addPostFrameCallback((_) {
         setState(() {});
       });
 
     }
     else {
-      print(jsondata["error"]);
+      if(showsub==true) {
+        setState(() {
+          jobVacancies = [];
+        });
+        print(jsondata["error"]);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(jsondata["error_msg"]),
-          duration: Duration(seconds: 2),
-          shape:
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-        ),
-      );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(jsondata["error_msg"]),
+            duration: Duration(seconds: 2),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
 
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Subb(callback:callback_mem)));
+        Navigator.push(context, MaterialPageRoute(
+            builder: (context) => Subb(callback: callback_mem)));
+      }else{
+        setState(() {
+          jobVacancies = [];
+        });
+      }
     }
   }
   Future<void> membershipDetails(BuildContext context) async {

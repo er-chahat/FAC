@@ -7,6 +7,7 @@ import 'package:fac/home/Userbottom.dart';
 import 'package:fac/home/add_post.dart';
 import 'package:fac/home/drawres.dart';
 import 'package:fac/home/mainprofile.dart';
+import 'package:fac/home/result.dart';
 import 'package:fac/home/subb.dart';
 import 'package:fac/welcome/about.dart';
 import 'package:fac/welcome/education.dart';
@@ -22,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,6 +47,7 @@ class _WelState extends State<Wel> {
   bool _dlLoading = false;
   bool _passLoading = false;
   bool _crtiLoading = false;
+  var recent_data;
   bool isPermission = false;
   Dio dio =Dio();
   double prog =0.000;
@@ -65,6 +68,69 @@ class _WelState extends State<Wel> {
   List<Map<String, dynamic>> userSkills = [];
   List<String> portfolioImages = [];
   List<dynamic> userPorti = [];
+  Future _recentTest() async {
+    try {
+      print("hello iam   the blogview");
+      var url = Uri.parse(
+          "$mainurl/user_test_detials.php");
+      Map mapdata = {
+        "updte":"1",
+        "user_id": user_id.toString(),
+      };
+      print("$mapdata");
+      print("hello");
+      //http.Response response = await http.post(url,body: mapdata);
+      http.Response response = await http.post(url, body: jsonEncode(mapdata));
+      print("hello");
+
+      var data = json.decode(response.body);
+      //print("its compleeter data ${copleteData}");
+
+      if(response.statusCode ==200){
+        print("your data 2 mesg data is :  HIIIIIIIIIIIIIIIII${data["tests"]}");
+        if(data["error"]==0){
+          setState(() {
+            recent_data=data["tests"];
+            // percent = total/atmpt;
+          });
+          return  data;
+        }else{
+          setState(() {
+            recent_data=[];
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("Something went Wrong"),
+              duration: Duration(seconds: 2 ),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            ),
+          );
+        }
+      }else{
+        setState(() {
+          recent_data=[];
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went Wrong"),
+            duration: Duration(seconds: 2 ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    }catch(e){
+      setState(() {
+        recent_data=[];
+      });
+      print("your excepton is :::: $e");
+      // MotionToast.warning(
+      //     title:  Text("$e"),
+      //     description:  Text("try again later ")
+      // ).show(context);
+      //Get.snackbar('Exception',e.toString());
+    }
+  }
   var docList;
   var name = "";
   var email = "";
@@ -108,7 +174,7 @@ class _WelState extends State<Wel> {
   var pp = "";
   var bc = "";
   void startDownloading(var filename) async{
-    String url ='http://103.99.202.191/fac/documents/$filename';
+    String url ='http://110.173.135.111/fac/documents/$filename';
     // const String fileName="Doc8.docx";
     //print("file path ::: ::::::: ::::$fileName ");
     String path = await _getFilePaths(filename);
@@ -517,6 +583,7 @@ class _WelState extends State<Wel> {
   @override
   void initState() {
     super.initState();
+   // _recentTest();
     checkPermisson();
     _postList();
     fetchProfile();
@@ -983,6 +1050,9 @@ class _WelState extends State<Wel> {
                                       borderRadius: BorderRadius.circular(10))),
                               onPressed: () async {
                                 //Navigator.pushNamed(context, "keyskills");
+                                setState(() {
+                                  inside = false;
+                                });
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=>Keyskills(callback: callback1)));
                             // if you want to apply sub for edit also  uncomment this code for all
                                 // if (membertype == "Paid") {
@@ -1516,7 +1586,9 @@ class _WelState extends State<Wel> {
                               color: Colors.black,
                             ),
                             SizedBox(width: 20),
-                            Text("$insta")
+                            Container(
+                                width:MediaQuery.of(context).size.width/1.5,
+                                child: Text("$insta",maxLines: 4,softWrap: true,))
                           ],
                         ),
                       SizedBox(
@@ -1530,7 +1602,9 @@ class _WelState extends State<Wel> {
                               color: Colors.black,
                             ),
                             SizedBox(width: 20),
-                            Text("$linked")
+                            Container(
+                              width:MediaQuery.of(context).size.width/1.5,
+                                child: Text("$linked",maxLines: 4,softWrap: true,overflow: TextOverflow.ellipsis,))
                           ],
                         ),
                       if(linked==""&&insta=="")
@@ -1562,6 +1636,107 @@ class _WelState extends State<Wel> {
                   ),
                 ),
               ),
+              // SizedBox(height: 15),
+              // Container(
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(20),
+              //     boxShadow: [
+              //       BoxShadow(
+              //         color: Colors.grey.withOpacity(0.2),
+              //         spreadRadius: 2,
+              //         blurRadius: 2,
+              //       ),
+              //     ],
+              //     color: Colors.white,
+              //   ),
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(20.0),
+              //     child: Column(
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: [
+              //         Text("Test Taken",
+              //             style: GoogleFonts.rubik(
+              //                 fontWeight: FontWeight.w500)),
+              //         SizedBox(height: 15),
+              //         if(recent_data == null)
+              //           CircularProgressIndicator(color: Colors.green,),
+              //         if(recent_data != null && recent_data.length==0)
+              //           Center(child: Text("No Record found!")),
+              //         if(recent_data !=null && recent_data.length >0)
+              //           for(int i =0;i<recent_data.length;i++)
+              //             InkWell(
+              //               onTap: (){
+              //                 if(recent_data[i]["completed_percentage"] == 100) {
+              //                   Navigator.push(context, MaterialPageRoute(
+              //                       builder: (context) =>
+              //                           ResultQuestion(cate: recent_data[i]["category_name"], callback: callback)));
+              //                 }
+              //               },
+              //               child: Container(
+              //                 decoration: BoxDecoration(
+              //                   borderRadius: BorderRadius.circular(10),
+              //                   color: Color(0xFFF8F7F9),
+              //                 ),
+              //                 child: Padding(
+              //                   padding: const EdgeInsets.all(8.0),
+              //                   child: Column(
+              //                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                     crossAxisAlignment: CrossAxisAlignment.start,
+              //                     children: [
+              //                       Row(
+              //                         mainAxisAlignment: MainAxisAlignment.center,
+              //                         children: [
+              //                           // Container(
+              //                           //   height: 87,
+              //                           //   width: 93,
+              //                           //   child: SvgPicture.asset(
+              //                           //       gen_iq
+              //                           //   ),
+              //                           // ),
+              //                         ],
+              //                       ),
+              //                       Column(
+              //                         crossAxisAlignment: CrossAxisAlignment.start,
+              //                         children: [
+              //                           Container(
+              //                               width: width/2.4,
+              //                               child: Text("${recent_data[i]["category_name"]}",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 16,color: Colors.black),softWrap: true,overflow: TextOverflow.ellipsis,)),
+              //                           SizedBox(
+              //                             height: 4,
+              //                           ),
+              //                           Row(
+              //                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //                             children: [
+              //                               Text("Completed",style: TextStyle(fontWeight: FontWeight.w400,fontSize: 14,color: Colors.black),),
+              //                               Text("${recent_data[i]["completed_percentage"]} %",style: TextStyle(fontWeight: FontWeight.w600,fontSize: 14,color: Colors.green),),
+              //                             ],
+              //                           ),
+              //                           SizedBox(
+              //                             height: 4,
+              //                           ),
+              //                           LinearPercentIndicator(
+              //                             padding: EdgeInsets.zero,
+              //                             animation: true,
+              //                             animationDuration: 1000,
+              //                             lineHeight: 6.0,
+              //                             percent: recent_data[i]["completed_percentage"]/100,
+              //
+              //                             linearStrokeCap: LinearStrokeCap.roundAll,
+              //                             barRadius: Radius.circular(10),
+              //                             progressColor: Colors.green,
+              //                           ),
+              //                         ],
+              //                       )
+              //                     ],
+              //                   ),
+              //                 ),
+              //               ),
+              //             ),
+              //       ],
+              //     ),
+              //   ),
+              // ),
               SizedBox(height: 15),
               Container(
                 width: double.infinity,
@@ -1589,7 +1764,7 @@ class _WelState extends State<Wel> {
                               style: GoogleFonts.rubik(fontSize: 20),
                             ),
                             Container(
-                              width: 70,
+                              width: 50,
                               height: 30,
                               child: TextButton(
                                 style: TextButton.styleFrom(
@@ -1701,7 +1876,7 @@ class _WelState extends State<Wel> {
                       print("ok");
                     },
                     child: Padding(
-                      padding: const EdgeInsets.all(10.0),
+                      padding: const EdgeInsets.all(8.0),
                       child: Text(
                         "+Add Document",
                         style: GoogleFonts.rubik(
@@ -2005,7 +2180,7 @@ class _WelState extends State<Wel> {
                         print("ok");
                       },
                       child: Padding(
-                        padding: const EdgeInsets.all(10.0),
+                        padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "+Add Document",
                           style: GoogleFonts.rubik(
@@ -2662,6 +2837,9 @@ class _WelState extends State<Wel> {
           setState(() {
             userSkills = skills;
           });
+        }
+        if(jsondata['user_skills'] == null){
+          userSkills.clear();
         }
         setState(() {
           if (jsondata["profile_image"] == "" ||

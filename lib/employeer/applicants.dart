@@ -367,9 +367,10 @@ class _ApplicantsState extends State<Applicants> {
                             //     ? Color(0xFF0C5BC0) :
                             // Color(0xFF6F97CA);
                           });
-                          Navigator.push(context, MaterialPageRoute(
-                              builder: (context) =>
-                                  TimeSlots(callback: callback,)));
+                          send(context);
+                          // Navigator.push(context, MaterialPageRoute(
+                          //     builder: (context) =>
+                          //         TimeSlots(callback: callback,)));
                           // if(namecontroller.text.isNotEmpty){
                           //   print("helllllllllllllllooooooooooooooooooooooooooooo:::::::::::::::::::::::::::");
                           //   Navigator.push(context, MaterialPageRoute(
@@ -470,8 +471,8 @@ class _ApplicantsState extends State<Applicants> {
     map["status"]=selectedStatus;
     map["message"]=namecontroller.text;
     map["user_id"]= user_id.toString();
-    map["schedule_date"]=datecontroller.text;
-    map["schedule_time"]=_time.text;
+    // map["schedule_date"]=datecontroller.text;
+    // map["schedule_time"]=_time.text;
 
 
     // if(selectedStatus=="Interview")
@@ -612,7 +613,7 @@ class _ApplicantsState extends State<Applicants> {
             ),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: timeSlot==null?Center(child: CircularProgressIndicator(color: Colors.green.shade500,)):Column(
+              child: timeSlot==null?Center(child: CircularProgressIndicator(color: Color(0xFF118743),)):Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -673,7 +674,7 @@ class _ApplicantsState extends State<Applicants> {
                               decoration: BoxDecoration(
                                 border: Border.all(width: 0.2,color: Colors.black),
                                 borderRadius: BorderRadius.circular(10),
-                                color: timeSlot[index]["slot_available"]=="Slot Not available"?Colors.white:Colors.green.shade200
+                                color: timeSlot[index]["slot_available"]=="Slot Not available"?Colors.white:Color(0xFF118743)
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(2.0),

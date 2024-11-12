@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:fac/employeer/add_category.dart';
 import 'package:fac/employeer/schedules.dart';
 import 'package:fac/employeer/subscription.dart';
 import 'package:fac/starting/splashscreen.dart';
@@ -35,7 +36,15 @@ class _LastState extends State<Last> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -198,8 +207,8 @@ class _LastState extends State<Last> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Icon(Icons.access_time,color: Colors.green.shade700,size: 30,),
+                            padding: const EdgeInsets.all(15.0),
+                            child: Icon(Icons.access_time,color: Color(0xFF118743),size: 20,),
                           ),
                         ),
                         SizedBox(
@@ -250,6 +259,41 @@ class _LastState extends State<Last> {
                         ),
                         Text(
                           "Job Application",
+                          style: GoogleFonts.rubik(
+                              fontSize: 18, fontWeight: FontWeight.w500),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Divider(),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>AddCategory()));
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                    width: double.infinity,
+                    color: Colors.transparent,
+                    child: Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Color(0xFFEDF9F0),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(15.0),
+                            child:Icon(Icons.category,size: 20,color: Color(0xFF118743),),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 20,
+                        ),
+                        Text(
+                          "Add Test",
                           style: GoogleFonts.rubik(
                               fontSize: 18, fontWeight: FontWeight.w500),
                         )
@@ -513,43 +557,43 @@ class _LastState extends State<Last> {
                   ),
                 ),
               ),
-              Divider(),
-              GestureDetector(
-                onTap: () {
-                  delete();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                    width: double.infinity,
-                    color: Colors.transparent,
-                    child: Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Color(0xFFF9EDED),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Icon(Icons.delete, color: Color(0xFFD31212),),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 20,
-                        ),
-                        Text(
-                          "Delete Account",
-                          style: GoogleFonts.rubik(
-                              fontSize: 18,
-                              color: Color(0xFFD31212),
-                              fontWeight: FontWeight.w500),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              // Divider(),
+              // GestureDetector(
+              //   onTap: () {
+              //     delete();
+              //   },
+              //   child: Padding(
+              //     padding: const EdgeInsets.all(5.0),
+              //     child: Container(
+              //       width: double.infinity,
+              //       color: Colors.transparent,
+              //       child: Row(
+              //         children: [
+              //           Container(
+              //             decoration: BoxDecoration(
+              //               color: Color(0xFFEDF9F0),
+              //               borderRadius: BorderRadius.circular(10.0),
+              //             ),
+              //             child: Padding(
+              //               padding: const EdgeInsets.all(15.0),
+              //               child: Icon(Icons.delete, color: Color(0xFF118743),size: 20,),
+              //             ),
+              //           ),
+              //           SizedBox(
+              //             width: 20,
+              //           ),
+              //           Text(
+              //             "Delete Account",
+              //             style: GoogleFonts.rubik(
+              //                 fontSize: 18,
+              //                 color: Color(0xFF000000),
+              //                 fontWeight: FontWeight.w500),
+              //           )
+              //         ],
+              //       ),
+              //     ),
+              //   ),
+              // ),
               Divider(),
               GestureDetector(
                 onTap: () {
@@ -564,20 +608,12 @@ class _LastState extends State<Last> {
                       children: [
                         Container(
                           decoration: BoxDecoration(
-                            color: Color(0xFFF9EDED),
+                            color: Color(0xFFEDF9F0),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Container(
-                              width: 35,
-                              height: 35,
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AssetImage("assets/exit.png"),
-                                ),
-                              ),
-                            ),
+                            padding: const EdgeInsets.all(15.0),
+                            child: Icon(Icons.logout, color: Color(0xFF118743),size: 20,),
                           ),
                         ),
                         SizedBox(
@@ -587,7 +623,7 @@ class _LastState extends State<Last> {
                           "Log Out",
                           style: GoogleFonts.rubik(
                               fontSize: 18,
-                              color: Color(0xFFD31212),
+                              color: Color(0xFF000000),
                               fontWeight: FontWeight.w500),
                         )
                       ],

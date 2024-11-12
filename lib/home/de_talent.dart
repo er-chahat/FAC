@@ -89,7 +89,7 @@ class _DeTalentState extends State<DeTalent> {
       ),
       body: _isLoading
           ? Center(
-        child: CircularProgressIndicator(color: Colors.green[700],),
+        child: CircularProgressIndicator(color: Color(0xFF118743),),
       )
           : SingleChildScrollView(
         child: Padding(
@@ -104,6 +104,21 @@ class _DeTalentState extends State<DeTalent> {
                           borderRadius: BorderRadius.circular(50),
                           child: Image(
                             image: NetworkImage("$photo/$gg"),
+                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              return Container(
+                                height: 55,
+                                width: 55,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200], // Placeholder background color
+                                  borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                ),
+                                child: Icon(
+                                  Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                  size: 30,
+                                  color: Colors.grey[400],
+                                ),
+                              );
+                            },
                             height: 65,
                             width: 65,
                             fit: BoxFit.cover,

@@ -9,6 +9,7 @@ import 'package:fac/home/wel.dart';
 import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Message extends StatefulWidget {
   const Message({super.key});
@@ -29,6 +30,46 @@ class _MessageState extends State<Message> {
   var empst = "";
   var ohimg = "";
 
+
+  final urlRegExp = RegExp(
+    r'(?:(https?:\/\/)?(meet\.google\.com\/[\w\-]+))',
+    caseSensitive: false,
+  );
+  final RegExp urlRegExp2 = RegExp(
+    r'(meet?.\/\/[^\s]+)',
+    caseSensitive: false,
+  );
+
+  // Function to launch the URL
+  Future<void> _launchURL(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
+  String? extractFirstUrl(String message) {
+
+
+    final matches = urlRegExp.allMatches(message);
+    if (matches.isNotEmpty) {
+      final url = matches.first.group(0);
+      if (url != null && !url.startsWith('http')) {
+        return 'https://' + url;
+      }
+      return url;
+    }
+    return null;
+  }
+  String? extractFirstUrl2(String message) {
+    final matches = urlRegExp2.allMatches(message);
+    if (matches.isNotEmpty) {
+      return matches.first.group(0);
+    }
+    return null;
+  }
 
   Timer? timer;
 
@@ -111,13 +152,14 @@ class _MessageState extends State<Message> {
       map["user_apply_jop_id"] = lovee.toString();
       map["message"] = msgcontroller.text;
       map["user_type"] = type;
-
+      print("Mapped::::::send msg$map");
       var res = await http.post(Uri.parse("$mainurl/send_messages.php"),
           body: jsonEncode(map));
-
+      print("Mapped::::::send msg$map");
+      print("Mapped::::::send msg$map");
       print(res.body);
       dynamic jsondata = jsonDecode(res.body);
-      print("Mapped::::::$map");
+      print("Mapped::::::send msg$map");
       print(jsondata);
 
       if (res.statusCode == 200) {
@@ -236,6 +278,21 @@ class _MessageState extends State<Message> {
                                     borderRadius: BorderRadius.circular(50),
                                     child: Image(
                                       image: NetworkImage("$photo/$cclogoe"),
+                                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                                        return Container(
+                                          height: 55,
+                                          width: 55,
+                                          decoration: BoxDecoration(
+                                            color: Colors.grey[200], // Placeholder background color
+                                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                          ),
+                                          child: Icon(
+                                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                            size: 30,
+                                            color: Colors.grey[400],
+                                          ),
+                                        );
+                                      },
                                       height: 65,
                                       width: 65,
                                       fit: BoxFit.cover,
@@ -307,7 +364,7 @@ class _MessageState extends State<Message> {
                                     });
                                     Navigator.pushNamed(context, "applicants");
 
-                                  }, icon: Icon(Icons.mail,color: Colors.green,),),
+                                  }, icon: Icon(Icons.mail,color: Color(0xFF118743),),),
                                 ),
                               ),
                             ],
@@ -345,63 +402,71 @@ class _MessageState extends State<Message> {
                                                     "Employer"
                                                     ? Alignment.centerRight
                                                     : Alignment.centerLeft,
-                                                child: Container(
-                                                  margin: const EdgeInsets.only(
-                                                      bottom: 10),
-                                                  decoration: BoxDecoration(
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.2),
-                                                        spreadRadius: 2,
-                                                        blurRadius: 2,
-                                                      ),
-                                                    ],
-                                                    color: vacancy["user_type"] ==
-                                                        "Employer"
-                                                        ? Colors.green[200]
-                                                        : Colors.white38,
-                                                    borderRadius: vacancy[
-                                                    "user_type"] ==
-                                                        "Employer"
-                                                        ? const BorderRadius.only(
-                                                      topLeft:
-                                                      Radius.circular(
-                                                          20.0),
-                                                      bottomLeft:
-                                                      Radius.circular(
-                                                          20.0),
-                                                      bottomRight:
-                                                      Radius.circular(
-                                                          20.0),
-                                                    )
-                                                        : const BorderRadius.only(
-                                                      topRight:
-                                                      Radius.circular(
-                                                          20.0),
-                                                      bottomLeft:
-                                                      Radius.circular(
-                                                          20.0),
-                                                      bottomRight:
-                                                      Radius.circular(
-                                                          20.0),
-                                                    ),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(
-                                                        20.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Text(
-                                                          vacancy["message"],
-                                                          style:
-                                                          GoogleFonts.rubik(
-                                                              fontSize: 17),
+                                                child: InkWell(
+                                                  onTap: (){
+                                                    String? url = extractFirstUrl(vacancy["message"]);
+                                                    if (url != null) {
+                                                      _launchURL(url);
+                                                    }
+                                                  },
+                                                  child: Container(
+                                                    margin: const EdgeInsets.only(
+                                                        bottom: 10),
+                                                    decoration: BoxDecoration(
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.grey
+                                                              .withOpacity(0.2),
+                                                          spreadRadius: 2,
+                                                          blurRadius: 2,
                                                         ),
                                                       ],
+                                                      color: vacancy["user_type"] ==
+                                                          "Employer"
+                                                          ? Color(0xFF118743)
+                                                          : Colors.white38,
+                                                      borderRadius: vacancy[
+                                                      "user_type"] ==
+                                                          "Employer"
+                                                          ? const BorderRadius.only(
+                                                        topLeft:
+                                                        Radius.circular(
+                                                            20.0),
+                                                        bottomLeft:
+                                                        Radius.circular(
+                                                            20.0),
+                                                        bottomRight:
+                                                        Radius.circular(
+                                                            20.0),
+                                                      )
+                                                          : const BorderRadius.only(
+                                                        topRight:
+                                                        Radius.circular(
+                                                            20.0),
+                                                        bottomLeft:
+                                                        Radius.circular(
+                                                            20.0),
+                                                        bottomRight:
+                                                        Radius.circular(
+                                                            20.0),
+                                                      ),
+                                                    ),
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.all(
+                                                          20.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Text(
+                                                            vacancy["message"],
+                                                            style:
+                                                            GoogleFonts.rubik(
+                                                                fontSize: 17),
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
@@ -453,7 +518,7 @@ class _MessageState extends State<Message> {
                         msgcontroller.clear();
                       },
                       child: Icon(Icons.send, color: Colors.white, size: 18),
-                      backgroundColor: Colors.green[700],
+                      backgroundColor: Color(0xFF118743),
                       elevation: 0,
                     ),
                   ],

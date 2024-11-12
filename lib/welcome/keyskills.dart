@@ -170,12 +170,14 @@ class _KeyskillsState extends State<Keyskills> {
                             borderRadius: BorderRadius.circular(10))),
                     onPressed: () {
                       if(skillController.text!=""&&skillController.text!=null &&ski!=null &&ski!=""){
+                        print("your inside is : $inside && ${okk.length}");
                         if(inside==false){
-                          if (okk.length == 3) {
-                            Navigator.pushNamed(context, "mp");
-                          }else{
-                            Skill(context);
-                          }
+                          Skill(context);
+                          // if (okk.length == 3) {
+                          //   Navigator.pushNamed(context, "mp");
+                          // }else{
+                          //   Skill(context);
+                          // }
                         }
                         if(inside==true){
                           Skill(context);
@@ -202,7 +204,7 @@ class _KeyskillsState extends State<Keyskills> {
               SizedBox(
                 height: 20,
               ),
-              if(inside==true)
+              if(okk.length != 0)
               Wrap(
                 spacing: 20.0,
                 runSpacing: 16.0,
@@ -298,23 +300,24 @@ class _KeyskillsState extends State<Keyskills> {
                   onPressed: () {
                     print("INside is true or false ::::::::::::::::: $inside");
                     //  Skill(context);
-                    if (inside == true) {
+                    if (inside != true) {
                       setState(() {
                         widget.callback("");
+                        inside = true;
                       });
                       Navigator.pop(context);
                       // Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Wel(),), (route) => false);
                       //Navigator.pushNamed(context, "wel");
-                    } else if(inside==false){
-                      // setState(() {
-                      //   widget.callback("");
-                      // });
+                    } else if(inside!=false){
+                      setState(() {
+                        inside = false;
+                      });
                      // Navigator.canPop(context);
                       Navigator.pushReplacementNamed(context, "mp");
                     }
                   },
                   child: Text(
-                    "Next",
+                    "Nexts",
                     style: GoogleFonts.rubik(color: Colors.white, fontSize: 17),
                   ),
                 ),
@@ -459,19 +462,22 @@ class _KeyskillsState extends State<Keyskills> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        setState(() {
-          List<Map<String, dynamic>> skillsDataList =
-              List<Map<String, dynamic>>.from(jsondata["user_skills"]);
-          if(okk.length >0){
-            okk.clear();
-          }
-          for (var skillsData in skillsDataList) {
-            okk.add(skillsData["skills"]);
-          }
+        if(jsondata["user_skills"] != null) {
+          setState(() {
+            List<Map<String, dynamic>> skillsDataList =
+            List<Map<String, dynamic>>.from(jsondata["user_skills"]);
+            if (okk.length > 0) {
+              okk.clear();
+            }
+            for (var skillsData in skillsDataList) {
+              okk.add(skillsData["skills"]);
+            }
 
-          print("okk list: $okk");
-
-        });
+            print("okk list: $okk");
+          });
+        }else{
+          okk.clear();
+        }
       } else {}
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

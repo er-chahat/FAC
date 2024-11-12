@@ -82,6 +82,7 @@ class _MessagesState extends State<Messages> {
           padding: const EdgeInsets.all(15.0),
           child: Column(
             children: [
+              if(selected == 0)
               Row(
                 children: [
                   Expanded(
@@ -95,14 +96,16 @@ class _MessagesState extends State<Messages> {
                       },
                       //controller: textEditingController,
                       //focusNode: focusNode,
+                      style: GoogleFonts.rubik(),
                       decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.grey[200],
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(10.0),
                             borderSide: BorderSide.none,
                           ),
                           hintText: 'Name or Email to find..',
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                           prefixIcon: Icon(
                             Icons.search,
                             color: Colors.grey,
@@ -121,28 +124,31 @@ class _MessagesState extends State<Messages> {
                           10.0),
                     ),
                     child: Container(
-                      height: 50,
+                      height: 40,
                       width: 100,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green[700],
+                          backgroundColor: Color(0xFF118743),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(10.0),
                           ),
                         ),
                         onPressed: () async {
-                          setState(() {
-                            riteshsinghh="${searchController.text}";
-                          });
-
-                          await Future.delayed(Duration.zero);
-
-                          if (riteshsinghh == "") {
-                              print("here I am;");
-                            } else if (riteshsinghh != "") {
-                              print("oh no");
-                              seachhh();
-                            }
+                          if(searchController.text.isNotEmpty){
+                            seachhh();
+                          }
+                          // setState(() {
+                          //   riteshsinghh="${searchController.text}";
+                          // });
+                          //
+                          // await Future.delayed(Duration.zero);
+                          //
+                          // if (riteshsinghh == "") {
+                          //     print("here I am;");
+                          //   } else if (riteshsinghh != "") {
+                          //     print("oh no");
+                          //     seachhh();
+                          //   }
 
                         },
                         child: Text(
@@ -178,10 +184,36 @@ class _MessagesState extends State<Messages> {
               SizedBox(height: 20,),
               if(selected == 0)
                 vacancyChat(),
-              if(selected == 1)
+              if(selected == 1 && postPeoplist.length >0)
                 for (var ohmsg in postPeoplist)
-                  postChat(ohmsg,context)
-
+                  postChat(ohmsg,context),
+              if(selected == 1 && postPeoplist.length == 0)
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        spreadRadius: 2,
+                        blurRadius: 2,
+                      ),
+                    ],
+                    color: Colors.white,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: Text(
+                      "Nothing Yet",
+                      style: GoogleFonts.rubik(
+                        color: Colors.grey,
+                        fontWeight: FontWeight.w400,
+                        fontSize: 20,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -213,7 +245,7 @@ class _MessagesState extends State<Messages> {
             begin: Alignment.topLeft,
             end: Alignment.bottomLeft,
             colors: [
-              Colors.green.shade800,
+              Color(0xFF118743),
               Color(0xFF6E9677),
             ],
           ):LinearGradient(
@@ -237,8 +269,9 @@ class _MessagesState extends State<Messages> {
     return Column(
       children: [
         if(oherror=="0")
-          for (var ohmsg in peoplist)
-            peopleContainer(ohmsg, context),
+          if(peoplist.isNotEmpty && peoplist != null)
+            for (var ohmsg in peoplist)
+              peopleContainer(ohmsg, context),
         if(oherror=="1")
           Container(
             width: double.infinity,
@@ -291,7 +324,7 @@ class _MessagesState extends State<Messages> {
 
     return GestureDetector(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>PostChat(jobPostId: ohmsg["job_seeker_post_id"], name: ohmsg["user_name"], emp: null, profile: ohmsg["profile_img"],isEmployer: true,)));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>PostChat(jobPostId: ohmsg["job_seeker_post_id"], name: ohmsg["user_name"], emp: null, profile: ohmsg["profile_img"],isEmployer: true,emp_id: "",)));
         //Navigator.pushNamed(context, "usermain");
       },
       child: Container(
@@ -319,6 +352,21 @@ class _MessagesState extends State<Messages> {
                       borderRadius: BorderRadius.circular(50),
                       child: Image(
                         image: NetworkImage("$photo/${ohmsg["profile_img"]}"),
+                        errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                          return Container(
+                            height: 55,
+                            width: 55,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200], // Placeholder background color
+                              borderRadius: BorderRadius.circular(8), // Adjust as needed
+                            ),
+                            child: Icon(
+                              Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                              size: 30,
+                              color: Colors.grey[400],
+                            ),
+                          );
+                        },
                         height: 65,
                         width: 65,
                         fit: BoxFit.cover,
@@ -334,16 +382,22 @@ class _MessagesState extends State<Messages> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if(ohmsg["user_name"] != null)
-                          Text(
-                            ohmsg["user_name"],
-                            style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 14),
+                          Container(
+                            width: MediaQuery.of(context).size.width/2.2,
+                            child: Text(
+                              "${ohmsg["user_name"]}",
+                              style: GoogleFonts.rubik(fontWeight: FontWeight.w500,fontSize: 14),
+                            ),
                           ),
 
                         SizedBox(height: 2),
                         if(ohmsg["email_id"] != null)
-                          Text(
-                            ohmsg["email_id"],
-                            style: GoogleFonts.rubik(fontSize: 12),
+                          Container(
+                            width: MediaQuery.of(context).size.width/2.2,
+                            child: Text(
+                              ohmsg["email_id"],
+                              style: GoogleFonts.rubik(fontSize: 12),
+                            ),
                           ),
                       ],
                     ),
@@ -359,7 +413,7 @@ class _MessagesState extends State<Messages> {
                               Container(
                                 padding: EdgeInsets.all(3),
                                 decoration: BoxDecoration(
-                                  color: Colors.green,
+                                  color: Color(0xFF118743),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 constraints: BoxConstraints(
@@ -406,8 +460,10 @@ class _MessagesState extends State<Messages> {
   if (res.statusCode == 200) {
     if (jsondata["error"] == 0) {
       if(jsondata["rows"]!=null||jsondata["rows"]!=0) {
+        print("your people apilied lis tc$jsondata");
         setState(() {
           peoplist = jsondata["people_jop_applied_list"];
+          print("your people apilied lis tc$peoplist");
           oherror="0";
         });
         print(peoplist);
@@ -445,6 +501,10 @@ class _MessagesState extends State<Messages> {
           });
         }
       } else {
+        print("hello its emoty");
+        setState(() {
+          postPeoplist = [];
+        });
         // ScaffoldMessenger.of(context).showSnackBar(
         //   SnackBar(
         //     content: Text("You have applied no-where yet"),
@@ -460,6 +520,9 @@ class _MessagesState extends State<Messages> {
 
       }
     } else {
+      setState(() {
+        postPeoplist = [];
+      });
       print('Error: ${res.statusCode}');
     }
   }
@@ -476,7 +539,7 @@ class _MessagesState extends State<Messages> {
 
     print(res.body);
     dynamic jsondata = jsonDecode(res.body);
-    print("Mapped::::::$map");
+    print("Mapped:::: search  of msg::$map");
     print(jsondata);
 
     if (res.statusCode == 200) {
@@ -484,11 +547,23 @@ class _MessagesState extends State<Messages> {
         
         if(jsondata["rows"]!=null||jsondata["rows"]!=0) {
           setState(() {
-            peoplist.clear();
-            peoplist = jsondata["people_jop_applied_list"];
+            if(peoplist.isNotEmpty) {
+              peoplist.clear();
+            }
+            if(jsondata["people_jop_applied_list"] != null){
+              print("its fine up to here ??");
+              peoplist = jsondata["people_jop_applied_list"];
+              print("its fine up to here too ??");
+            }
           });
 
 
+        }else{
+          setState(() {
+            if(peoplist.isNotEmpty) {
+              peoplist.clear();
+            }
+          });
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -557,6 +632,21 @@ class _MessagesState extends State<Messages> {
                        borderRadius: BorderRadius.circular(50),
                        child: Image(
                          image: NetworkImage("$photo/${ohmsg["profile_img"]}"),
+                         errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                           return Container(
+                             height: 55,
+                             width: 55,
+                             decoration: BoxDecoration(
+                               color: Colors.grey[200], // Placeholder background color
+                               borderRadius: BorderRadius.circular(8), // Adjust as needed
+                             ),
+                             child: Icon(
+                               Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                               size: 30,
+                               color: Colors.grey[400],
+                             ),
+                           );
+                         },
                          height: 65,
                          width: 65,
                          fit: BoxFit.cover,
@@ -578,45 +668,60 @@ class _MessagesState extends State<Messages> {
                   SizedBox(
                     width: 15,
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (ohmsg["name"] != null)
-                        Text(
-                          ohmsg["name"],
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w500, fontSize: 13),
-                        ),
-                      if(ohmsg["confirm_email"] != null)
-                        Text(
-                          ohmsg["confirm_email"],
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w300, fontSize: 11),
-                        ),
-                      if(ohmsg["city"] != null||ohmsg["location"] != null)
-                        Text(
-                          "${ohmsg["city"]},${ohmsg["location"]}",
-                          style: GoogleFonts.rubik(
-                              fontWeight: FontWeight.w300, fontSize: 11),
-                        ),
-                      Row(
-                        children: [
-                          Text("For: ",style: GoogleFonts.rubik(fontSize: 11),),
-                          Text(
-                            ohmsg["open_position"],
-                            style: GoogleFonts.rubik(
-                                fontWeight: FontWeight.w500, fontSize: 11,),
+                  Container(
+                    width: MediaQuery.of(context).size.width/1.9,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (ohmsg["name"] != null)
+                          Container(
+                            width: MediaQuery.of(context).size.width/2.2,
+                            child: Text(
+                              ohmsg["name"],
+                              style: GoogleFonts.rubik(
+                                  fontWeight: FontWeight.w500, fontSize: 13),
+                            ),
                           ),
-                        ],
-                      ),
-                    ],
+                        if(ohmsg["confirm_email"] != null)
+                          Container(
+                            width: MediaQuery.of(context).size.width/2.2,
+                            child: Text(
+                              ohmsg["confirm_email"],
+                              style: GoogleFonts.rubik(
+                                  fontWeight: FontWeight.w300, fontSize: 11),
+                            ),
+                          ),
+                        if(ohmsg["city"] != null||ohmsg["location"] != null)
+                          Container(
+                            width: MediaQuery.of(context).size.width/2.2,
+                            child: Text(
+                              "${ohmsg["city"]},${ohmsg["location"]}",
+                              style: GoogleFonts.rubik(
+                                  fontWeight: FontWeight.w300, fontSize: 11),
+                            ),
+                          ),
+                        Row(
+                          children: [
+                            Text("For: ",style: GoogleFonts.rubik(fontSize: 11),),
+                            Container(
+                              width: MediaQuery.of(context).size.width/2.2,
+                              child: Text(
+                                ohmsg["open_position"],
+                                style: GoogleFonts.rubik(
+                                    fontWeight: FontWeight.w500, fontSize: 11,),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                   Spacer(flex: 2,),
-                  if(ohmsg["messages"]!="0")
+                  if(ohmsg["messages"] != null && ohmsg["messages"]!="0")
                     Container(
                       padding: EdgeInsets.all(3),
                       decoration: BoxDecoration(
-                        color: Colors.green,
+                        color: Color(0xFF118743),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       constraints: BoxConstraints(

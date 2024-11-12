@@ -3,13 +3,17 @@ import 'dart:convert';
 import 'package:fac/home/result.dart';
 import 'package:fac/starting/splashscreen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class QuestionOptions extends StatefulWidget {
   var cate;
-  QuestionOptions({required this.cate});
+  var job_aply_id;
+  var moveResult;
+  final Function(String) callback;
+  QuestionOptions({required this.cate,required this.callback,required this.moveResult,required this.job_aply_id});
 
   @override
   State<QuestionOptions> createState() => _QuestionOptionsState();
@@ -32,8 +36,10 @@ class _QuestionOptionsState extends State<QuestionOptions> {
      // var session_id=ids != null?ids:2;
       Map mapdata = {
         "updte":1,
-        "category_name": "${widget.cate}",
+        "category_name": widget.moveResult == true ?"":"${widget.cate}",
+        "category_id": widget.moveResult == true ?"${widget.cate}":"",
         "user_id": user_id.toString(),
+        "user_apply_jop_id":widget.job_aply_id
         //"category_name": widget.heading,
       };
       print("$mapdata");
@@ -44,7 +50,7 @@ class _QuestionOptionsState extends State<QuestionOptions> {
 
       var data = json.decode(response.body);
       //print("its compleeter data ${copleteData}");
-
+      print("your data 2 mesg data is : question  HIIIIIIIIIIIIIIIII$data");
       if(response.statusCode ==200){
         print("your data 2 mesg data is :  HIIIIIIIIIIIIIIIII");
         if(data["error"]==0){
@@ -55,6 +61,18 @@ class _QuestionOptionsState extends State<QuestionOptions> {
           });
           return  data;
         }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("No Question Available"),
+              duration: Duration(seconds: 2),
+              shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+            ),
+          );
+          Navigator.pop(context);
+          if(Navigator.canPop(context)){
+            Navigator.pushReplacementNamed(context, "usermain");
+          }
           //MotionToast.error(description: Text(data["error_msg"]));
         }
       }else{
@@ -92,7 +110,8 @@ class _QuestionOptionsState extends State<QuestionOptions> {
       // var session_id=ids != null?ids:2;
       Map mapdata = {
         "updte":"1",
-        "category_name":widget.cate,
+        "category_name": widget.moveResult == true ?"":"${widget.cate}",
+        "category_id": widget.moveResult == true ?"${widget.cate}":"",
         "user_id": user_id.toString(),
         "user_result_id":"$user_ids",
         "answer_id":"$ans_id",
@@ -106,14 +125,42 @@ class _QuestionOptionsState extends State<QuestionOptions> {
 
       var data = json.decode(response.body);
       //print("its compleeter data ${copleteData}");
+      print("your data 2 mesg data is :  HIIIIIIIIIIIIIIIII $data");
 
       if(response.statusCode ==200){
         print("your data 2 mesg data is :  HIIIIIIIIIIIIIIIII");
         if(data["error"]==0){
           if(data["test_finish"]!="No"){
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ResultQuestion()));
+            if(widget.moveResult == false) {
+              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>ResultQuestion(cate: widget.cate,callback: widget.callback,)));
+            }else{
+              openresult();
+              Future.delayed(Duration(seconds: 2),(){
+                  print("hello its navitageo callback question ");
+                  widget.callback("");
+                  Navigator.pop(context);
+                  if(Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+
+                print("hello its navitageo question ");
+              });
+            }
+
           }else{
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>QuestionOptions(cate: widget.cate)));
+            if(widget.moveResult == false) {
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) =>
+                      QuestionOptions(cate: widget.cate,
+                        callback: widget.callback,
+                        moveResult: false,job_aply_id: widget.job_aply_id,)));
+            }else{
+              Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (context) =>
+                      QuestionOptions(cate: widget.cate,
+                        callback: widget.callback,
+                        moveResult: true,job_aply_id: widget.job_aply_id,)));
+            }
           }
           return  data;
         }else{
@@ -136,6 +183,29 @@ class _QuestionOptionsState extends State<QuestionOptions> {
       //Get.snackbar('Exception',e.toString());
     }
   }
+  void openresult() => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        content: Container(
+            height: 80,
+            width: 80,
+            child: Center(
+                child: Column(
+                  children: [
+                    Icon(Icons.check_circle,color: Color(0xFF118743),size: 30,),
+                    Text(
+                      "Your Test Completed Successfully!",
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.baloo2(
+                          fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
+                  ],
+                ))),
+        actions: [
+
+        ],
+      ));
   Future _total() async {
     try {
       print("hello iam   the blogview");
@@ -204,11 +274,11 @@ class _QuestionOptionsState extends State<QuestionOptions> {
     var width = size.width;
     var height = size.height;
     return Scaffold(
-        backgroundColor: Colors.green.shade600,
+        backgroundColor: Color(0xFF118743),
         body:SingleChildScrollView(
           child: ques_data==null?Center(
             child: CircularProgressIndicator(
-              color: Colors.green,
+              color: Color(0xFF118743),
             ),
           ):ques_data.length == 0 ?Center(child: Text("No Question Yet",style: TextStyle(color: Colors.black),)):Container(
             width: width,
@@ -217,7 +287,7 @@ class _QuestionOptionsState extends State<QuestionOptions> {
                   begin: Alignment.topLeft,
                   end: Alignment.centerLeft,
                   colors: [
-                    Colors.green.shade800,
+                    Color(0xFF118743),
                     Color(0xFFFCFCFC),
                   ],
                 )
@@ -238,7 +308,9 @@ class _QuestionOptionsState extends State<QuestionOptions> {
                             children: [
                               InkWell(
                                   onTap: (){
-
+                                    setState(() {
+                                      widget.callback("");
+                                    });
                                     Navigator.pop(context);
                                   },
                                   child: Padding(
@@ -275,14 +347,14 @@ class _QuestionOptionsState extends State<QuestionOptions> {
 
                                         linearStrokeCap: LinearStrokeCap.roundAll,
                                         barRadius: Radius.circular(10),
-                                        progressColor: Colors.green.shade800,
+                                        progressColor: Color(0xFF118743),
                                       ),
                                     ],
                                   ),
                                   SizedBox(
                                     height: 10,
                                   ),
-                                  Text(widget.cate,style: TextStyle(decoration: TextDecoration.none,fontSize: 24,fontWeight: FontWeight.w600,color: Colors.black),),
+                                  Text(ques_data["category_name"],style: TextStyle(decoration: TextDecoration.none,fontSize: 24,fontWeight: FontWeight.w600,color: Colors.black),),
                                   SizedBox(
                                     height: 14,
                                   ),
@@ -359,7 +431,7 @@ class _QuestionOptionsState extends State<QuestionOptions> {
                                         width: width,
                                         decoration: BoxDecoration(
                                           borderRadius: BorderRadius.circular(12),
-                                          color: Colors.green.shade800,
+                                          color: Color(0xFF118743),
                                         ),
                                         child: Padding(
                                           padding: const EdgeInsets.all(14.0),
@@ -404,7 +476,7 @@ class _QuestionOptionsState extends State<QuestionOptions> {
         },
         child: Container(
           decoration: BoxDecoration(
-            border: Border.all(width: 1,color: index==selected?Colors.green.shade800:Colors.black12),
+            border: Border.all(width: 1,color: index==selected?Color(0xFF118743):Colors.black12),
             borderRadius: BorderRadius.circular(12),
             color: index==selected?Color(0xFFD5FAE4):
             Colors.white,
@@ -438,7 +510,7 @@ class _QuestionOptionsState extends State<QuestionOptions> {
                       shape: BoxShape.circle,
                       color: Colors.white,
                     ),
-                    child: Icon(Icons.check_circle,size: 24,color: Colors.green.shade800,)),
+                    child: Icon(Icons.check_circle,size: 24,color: Color(0xFF118743),)),
               ],
             ),
           ),

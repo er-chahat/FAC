@@ -28,28 +28,28 @@ class _SuccessState extends State<Success> {
          ),
        ),
      ),
-      bottomNavigationBar:  Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Container(
-          height: 50,
-          width: double.infinity,
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green[700],
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-            ),
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Mainprofile(),), (route) => false);
-            },
-            child: Text(
-              "Back To Home",
-              style: GoogleFonts.baloo2(color: Colors.white,fontSize: 17),
-            ),
-          ),
-        ),
-      ),
+      // bottomNavigationBar:  Padding(
+      //   padding: const EdgeInsets.all(10.0),
+      //   child: Container(
+      //     height: 50,
+      //     width: double.infinity,
+      //     child: ElevatedButton(
+      //       style: ElevatedButton.styleFrom(
+      //         backgroundColor: Colors.green[700],
+      //         shape: RoundedRectangleBorder(
+      //           borderRadius: BorderRadius.circular(20.0),
+      //         ),
+      //       ),
+      //       onPressed: () {
+      //         Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => Mainprofile(),), (route) => false);
+      //       },
+      //       child: Text(
+      //         "Back To Home",
+      //         style: GoogleFonts.baloo2(color: Colors.white,fontSize: 17),
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
   }
 }

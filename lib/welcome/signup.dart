@@ -46,6 +46,13 @@ class _SignupState extends State<Signup> {
   final FocusNode focusNode6 = FocusNode();
 
   bool vertical = false;
+
+  String selectedValues = '';
+  List<String> _options =[];
+  List<String>  _option2 =[];
+  String codepin = '';
+  final TextEditingController _serchController = TextEditingController();
+
   var otp = "";
   Color radioColor = Colors.grey;
   String selectedOption = 'No';
@@ -88,6 +95,49 @@ class _SignupState extends State<Signup> {
   List<String> userSkillss = [];
   String? pinselected;
   String? selectedItem ;
+
+  searchapi(String value, String? state) async{
+    HashMap<String, dynamic> map = HashMap();
+    map["updte"] = "1";
+    map["state"] = state!;
+    map["city"] = value;
+
+    var res = await http.post(Uri.parse("$mainurl/location_city_search.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("harleen $map");
+    print(jsondata);
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      print("hello api search data is $jsondata");
+      //List<dynamic> skillsList = jsondata["user_skills"];
+      //           setState(() {
+      //             userSkills = skillsList.map((skill) => skill["state"].toString()).toList();
+      //             locselected=userSkills[0];
+      //           });
+      if(er==0){
+        List<dynamic> all = jsondata["location"] ;
+        setState(() {
+          _options = all.map((alldat)=> alldat["city"].toString()).toList();
+          _option2 = all.map((alldat)=> alldat["pincode"].toString()).toList();
+        });
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went worng"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    } else {
+      print('error');
+    }
+
+  }
 
   locations(context) async {
     HashMap<String, String> map = HashMap();
@@ -348,6 +398,7 @@ class _SignupState extends State<Signup> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Name",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -461,6 +512,7 @@ class _SignupState extends State<Signup> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           hintText: "Date Of Birth",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                         onTap: () async {
                           DateTime? pickedDate = await showDatePicker(
@@ -516,359 +568,152 @@ class _SignupState extends State<Signup> {
                     SizedBox(
                       height: 10,
                     ),
-                    DropdownButtonFormField(
-                      // isDense: true,
-                      validator: (value){
-                        if(value == null || value!.isEmpty){
-                          return "Please select";
-                        }else if(jobTypCont.length<3){
-                          return "Please add 3 Preferred jobs";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        filled: true,
-                        hintText: "Preferred job type",
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0,right: 8),
+                      child: DropdownButtonFormField(
+                        // isDense: true,
+                        validator: (value){
+                          if(value == null || value!.isEmpty){
+                            return "Please select";
+                          }
+                          return null;
+                        },
+                        decoration: InputDecoration(
+                          filled: true,
+                          hintText: "Preferred work state",
+                          fillColor: Colors.white,
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      value: typeSelected,
-                      onChanged: (String? selectedItem) {
-                        setState(() {
-                          this.typeSelected = selectedItem!;
-
-                          //this.pinselected = null;
-                          // PinCode(context,"");
-                        });
-                      },
-
-                      items: jobType
-                          .map((String item) => DropdownMenuItem(
-                        value: item,
-                        onTap: (){
-                          int index = jobType.indexOf(item);
+                        value: locselected,
+                        onChanged: (String? selectedItem) {
                           setState(() {
-                            typeIdSelected=jobIdType[index];
-                            subType(context,typeIdSelected);
-                            print(" index of id $index and $typeIdSelected");
-
+                            this.locselected = selectedItem!;
+                            this.pinselected = null;
+                            PinCode(context,"");
                           });
                         },
-                        child: Container(
-                            width: width/1.5,
-                            child: Text(item)),
-                      ))
-                          .toList(),
-                      icon: Padding(
-                        padding: EdgeInsets.only(left: 20),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    DropdownButtonFormField(
-                      // isDense: true,
-                      validator: (value){
-                        if(value == null || value!.isEmpty){
-                          return "Please select";
-                        }else if(subTypCont.length<3){
-                          return "Please add 3 Preferred jobs";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: "Job subType",
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      value: typeSubSelected,
-                      onChanged: (selectedItem) {
-                        setState(() {
-                          this.typeSubSelected = selectedItem!;
-                          if(subTypCont.length < 3) {
-                            if(subTypCont.length == 0){
-                              setState(() {
-                                jobTypCont.add(typeSelected!);
-                                subTypCont.add(typeSubSelected!);
-                              });
-                            }else{
-                              for(int j =0;j<subTypCont.length;j++){
-                                print("hello your sutype cont ${subTypCont[j]} && $typeSubSelected");
-                                print("hello your sutype cont ${subTypCont} && $j");
-                                if(subTypCont[j] == typeSubSelected){
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text("This Job is already selected"),
-                                      duration: Duration(seconds: 2),
-                                      shape:
-                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                                    ),
-                                  );
-                                  break;
-                                }else if(j == subTypCont.length-1 && typeSubSelected !=subTypCont[j]){
-                                  setState(() {
-                                    jobTypCont.add(typeSelected!);
-                                    subTypCont.add(typeSubSelected!);
-                                  });
-                                  break;
-                                }
-                              }
-                            }
-                          }else{
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text("You can only select up to three jobs"),
-                                duration: Duration(seconds: 2),
-                                shape:
-                                RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
-                              ),
-                            );
-                          }
-                        });
-                      },
-                      items: jobSubType
-                          .map((String item) => DropdownMenuItem(
-                        value: item,
-                        onTap: (){
-                          // if(subTypCont.length < 3) {
-                          //   setState(() {
-                          //     jobTypCont.add(typeSelected!);
-                          //     subTypCont.add(typeSubSelected!);
-                          //   });
-                          // }
-                          print("hello your list cont job is ${jobTypCont} && $subTypCont");
-                        },
-                        child: Container(
-                            width: MediaQuery.of(context).size.width/2,
-                            child: Text(item,softWrap: true,maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                      ))
-                          .toList(),
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    if(subTypCont.length > 0)
-                      SizedBox(height: 10.0),
-                    if(subTypCont.length > 0 )
-                      Text("Selected ${subTypCont.length}/3 Preferred jobs",style: GoogleFonts.rubik(fontWeight: FontWeight.w400,fontSize: 14)),
-                    SizedBox(height: 10.0),
-                    if(subTypCont.length > 0)
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          for(int i =0 ; i<subTypCont.length;i++)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 10.0),
-                              child: Stack(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(right: 8.0),
-                                    child: Container(
-                                      width: width/4,
-                                      decoration: BoxDecoration(
-                                          borderRadius:BorderRadius.circular(10),
-                                          border: Border.all(width: 0.2,color: Colors.black)
-                                      ),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(10.0),
-                                        child: Text("${subTypCont[i]}",softWrap: true,overflow: TextOverflow.ellipsis,textAlign: TextAlign.center,),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                      right: -2,
-                                      top: -2,
-                                      child: InkWell(
-                                          onTap: (){
-                                            setState(() {
-                                              subTypCont.removeAt(i);
-                                              jobTypCont.removeAt(i);
-                                            });
-                                          },
-                                          child: Icon(Icons.remove_circle_outlined,color: Colors.red,size: 22,))),
-                                ],
-                              ),
-                            ),
-                        ],
-                      ),
-                    if(subTypCont.length > 0)
-                      SizedBox(height: 10.0),
-
-                    DropdownButtonFormField(
-                      // isDense: true,
-                      validator: (value){
-                        if(value == null || value!.isEmpty){
-                          return "Please select";
-                        }else if(jobTypCont.length<3){
-                          return "Please add 3 Preferred jobs";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        filled: true,
-                        hintText: "Select Employment",
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      value: selectedItem,
-                      onChanged: (String? selectedItem) {
-                        setState(() {
-                          this.selectedItem = selectedItem!;
-
-                          //this.pinselected = null;
-                          // PinCode(context,"");
-                        });
-                      },
-
-                      items: itemList
-                          .map((String item) => DropdownMenuItem(
-                        value: item,
-                        child: Container(
-                            width: width/1.5,
-                            child: Text(item)),
-                      ))
-                          .toList(),
-                      icon: Padding(
-                        padding: EdgeInsets.only(left: 20),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: 10.0),
-                    DropdownButtonFormField(
-                      // isDense: true,
-                      validator: (value){
-                        if(value == null || value!.isEmpty){
-                          return "Please select";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        filled: true,
-                        hintText: "Preferred work state",
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      value: locselected,
-                      onChanged: (String? selectedItem) {
-                        setState(() {
-                          this.locselected = selectedItem!;
-                          this.pinselected = null;
-                          PinCode(context,"");
-                        });
-                      },
-                      items: userSkills
-                          .map((String item) => DropdownMenuItem(
-                        value: item,
-                        child: Text(item),
-                      ))
-                          .toList(),
-                      icon: Padding(
-                        padding: EdgeInsets.only(left: 20),
-                        child: Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey,
+                        items: userSkills
+                            .map((String item) => DropdownMenuItem(
+                          value: item,
+                          child: Text(item),
+                        ))
+                            .toList(),
+                        icon: Padding(
+                          padding: EdgeInsets.only(left: 20),
+                          child: Icon(
+                            Icons.keyboard_arrow_down,
+                            color: Colors.grey,
+                          ),
                         ),
                       ),
                     ),
                     SizedBox(height: 10,),
-                    DropdownButtonFormField(
-                      // isDense: true,
-                      validator: (value){
-                        if(value == null || value!.isEmpty){
-                          return "Please select";
-                        }
-                        return null;
-                      },
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: "Preferred work Suburb",
-                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8,right: 8),
+                      child: Container(
+                        height: 50,
+                        child: TextFormField(
+                          controller: _serchController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.grey),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            suffixIcon: Autocomplete<String>(
+                              optionsBuilder: (TextEditingValue textEditingValue) async {
+                                if (textEditingValue.text.isEmpty) {
+                                  return const Iterable<String>.empty();
+                                }
+                                await searchapi(textEditingValue.text, locselected);
+                                return _options;
+                              },
+                              onSelected: (String selection) {
+                                setState(() {
+                                  _serchController.text = selection;
+                                  int index = _options.indexOf(selection);
+                                  selectedValues = selection;
+                                  codepin = _option2[index];
+                                });
+                                print('You selected: $selection');
+                              },
+                              fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                                return TextFormField(
+                                  controller: controller,
+                                  focusNode: focusNode,
+                                  style: GoogleFonts.rubik(),
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                                    hintText: "Search Suburb",
+                                    hintStyle: GoogleFonts.rubik(color: Colors.grey),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  ),
+                                  onFieldSubmitted: (value) {
+                                    onFieldSubmitted();
+                                  },
+                                );
+                              },
+                              optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                                return Align(
+                                  alignment: Alignment.topLeft,
+                                  child: Material(
+                                    elevation: 4.0,
+                                    child: Container(
+                                      height: 200.0,
+                                      color: Colors.white,
+                                      child: ListView.builder(
+                                        padding: EdgeInsets.all(8.0),
+                                        itemCount: options.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          final String option = options.elementAt(index);
+                                          return GestureDetector(
+                                            onTap: () {
+                                              onSelected(option);
+                                            },
+                                            child: ListTile(
+                                              title: Text("$option (${_option2[index]})"),
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                         ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      value: pinselected,
-                      onChanged: (selectedItem) {
-                        setState(() {
-                          this.pinselected = selectedItem!;
-                        });
-                      },
-                      items: userSkillss
-                          .map((String item) => DropdownMenuItem(
-                        value: item,
-                        child: Container(
-                            width: MediaQuery.of(context).size.width/2,
-                            child: Text(item,softWrap: true,maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                      ))
-                          .toList(),
-                      icon: Icon(
-                        Icons.keyboard_arrow_down,
-                        color: Colors.grey,
                       ),
                     ),
                     SizedBox(
@@ -918,6 +763,7 @@ class _SignupState extends State<Signup> {
                             },
                           ),
                           hintText: "Password",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -935,7 +781,7 @@ class _SignupState extends State<Signup> {
                             pass = text;
                           });
                         },
-                        style: GoogleFonts.montserrat(),
+                        style: GoogleFonts.rubik(),
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -968,6 +814,7 @@ class _SignupState extends State<Signup> {
                             },
                           ),
                           hintText: "Re-enter Password",
+                          hintStyle: GoogleFonts.rubik(color: Colors.grey),
                         ),
                       ),
                     ),
@@ -1041,6 +888,7 @@ class _SignupState extends State<Signup> {
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(10))),
                             onPressed: () {
+                              print("your pin seledcted ${pinselected}");
                               if (pword.isNotEmpty &&
                                   pass.isNotEmpty &&
                                   pword != pass) {
@@ -1420,15 +1268,8 @@ class _SignupState extends State<Signup> {
     map["privacy_policy"] = selectedOption.toString();
     map["password"] = passcontroller.text;
     map["user_type"] = type.toString();
-    map["preference"] = selectedItem!;
-    map["job_type"] = jobTypCont[0];
     map["fcm_token"] = token.toString();
-    map["job_type_two"] = jobTypCont[1];
-    map["job_type_three"] = jobTypCont[2];
-    map["job_name"] = subTypCont[0];
-    map["job_name_two"] = subTypCont[1];
-    map["job_name_three"] = subTypCont[2];
-    map["city"] = pinselected!;
+    map["city"] = "$selectedValues (${codepin})";
     map["state"] = locselected!;
     print("your singup map value is  $map");
 
@@ -1486,7 +1327,9 @@ class _SignupState extends State<Signup> {
         pref.setString(LoginState.USERID, jsondata["user_id"]);
         pref.setString(LoginState.USERTYPE, jsondata["user_type"]);
         fetchData();
-
+        setState(() {
+          inside = true;
+        });
         Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => Keyskills(callback:callback2,)),

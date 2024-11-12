@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:fac/employeer/post_chat.dart';
 import 'package:fac/employeer/seeresume.dart';
 import 'package:fac/employeer/subscription.dart';
+import 'package:fac/home/user_prof_view.dart';
 import 'package:fac/home/wel.dart';
 import 'package:fac/welcome/login.dart';
 import 'package:http/http.dart' as http;
@@ -18,7 +19,10 @@ import 'package:open_file_plus/open_file_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:table_calendar/table_calendar.dart';
+
+import '../home/de.dart';
+import '../welcome/choose.dart';
+//import 'package:table_calendar/table_calendar.dart';
 
 var app_id = "";
 var iid = "";
@@ -47,7 +51,7 @@ class _EmphomeState extends State<Emphome> {
   // var sel="";
   // var rej="";
   // var vie="";
-  CalendarFormat _format =CalendarFormat.month;
+  //CalendarFormat _format =CalendarFormat.month;
   DateTime _focusDay = DateTime.now();
   DateTime _currentDay = DateTime.now();
   int? currentIndex ;
@@ -88,7 +92,15 @@ class _EmphomeState extends State<Emphome> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        if(jsondata["user_subscription"]!="Off"){
+        if(jsondata["user_subscription"]!="Off" && type == "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && type != "User"){
+          setState(() {
+            showsub=true;
+          });
+        }else if(jsondata["employers_subscription"] != "Off" && jsondata["user_subscription"]!="Off" ){
           setState(() {
             showsub=true;
           });
@@ -109,7 +121,7 @@ class _EmphomeState extends State<Emphome> {
     }
   }
   void startDownloading(var filename) async{
-    String url ='http://103.99.202.191/fac/cv/$filename';
+    String url ='http://110.173.135.111/fac/cv/$filename';
     // const String fileName="Doc8.docx";
     //print("file path ::: ::::::: ::::$fileName ");
     String path = await _getFilePaths(filename);
@@ -435,7 +447,7 @@ class _EmphomeState extends State<Emphome> {
           setState(() {
             postList=data;
           });
-          print("your data 2 mesg data is :::::::::::::questons :::::::::::$data  HIIIIIIIIIIIIIIIII");
+          print("your data 2 mesg data is :::::::::::::postList :::::::::::$data  HIIIIIIIIIIIIIIIII");
           return  data;
         }else{
           setState(() {
@@ -611,14 +623,16 @@ class _EmphomeState extends State<Emphome> {
                           },
                           //controller: textEditingController,
                           //focusNode: focusNode,
+                          style: GoogleFonts.rubik(),
                           decoration: InputDecoration(
                               filled: true,
                               fillColor: Colors.grey[200],
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(20.0),
+                                borderRadius: BorderRadius.circular(10.0),
                                 borderSide: BorderSide.none,
                               ),
                               hintText: 'Search a skill here',
+                              hintStyle: GoogleFonts.rubik(color: Colors.grey),
                               prefixIcon: Icon(
                                 Icons.search,
                                 color: Colors.grey,
@@ -634,13 +648,13 @@ class _EmphomeState extends State<Emphome> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: Container(
-                          height: 50,
+                          height: 40,
                           width: 100,
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.green[700],
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20.0),
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
                             ),
                             onPressed: () {
@@ -911,6 +925,7 @@ class _EmphomeState extends State<Emphome> {
         if (jsondata["row"] != null || jsondata["rows"] != 0) {
           setState(() {
             vacancies = jsondata["user_skills"];
+            print("hello vacant are $vacancies");
           });
         }
       } else {
@@ -1000,6 +1015,7 @@ class _EmphomeState extends State<Emphome> {
   Widget vacancyContainer(dynamic vacancy, BuildContext context) {
 
     bool isActive = vacancy["is_active"] == "1";
+    print("hello its uour vancancy container");
 
     return GestureDetector(
       onTap: () {
@@ -1035,6 +1051,21 @@ class _EmphomeState extends State<Emphome> {
                     ),
                     child: Image(
                       image: NetworkImage("$photo/${vacancy["jop_image"]}"),
+                      errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                        return Container(
+                          height: 55,
+                          width: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200], // Placeholder background color
+                            borderRadius: BorderRadius.circular(8), // Adjust as needed
+                          ),
+                          child: Icon(
+                            Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                            size: 30,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
                       height: 65,
                       width: 50,
                     ),
@@ -1060,7 +1091,7 @@ class _EmphomeState extends State<Emphome> {
                         ),
                       ),
                       Text(
-                        "${vacancy["salary"]}",
+                        "${vacancy["salary"]=="/null"?"Not given":vacancy["salary"]}",
                         style: GoogleFonts.rubik(
                           color: Colors.grey,
                           fontSize: 10,
@@ -1191,9 +1222,12 @@ class _EmphomeState extends State<Emphome> {
                       style: GoogleFonts.rubik(
                           fontWeight: FontWeight.w500, fontSize: 15),
                     ),
-                    Text(
-                      "For: ${peoplist["open_position"]}",
-                      style: GoogleFonts.rubik(color: Colors.grey, fontSize: 13),
+                    Container(
+                      width: MediaQuery.of(context).size.width/2.3,
+                      child: Text(
+                        "For: ${peoplist["open_position"]}",
+                        style: GoogleFonts.rubik(color: Colors.grey, fontSize: 13),
+                      ),
                     ),
                   ],
                 ),
@@ -1279,7 +1313,7 @@ class _EmphomeState extends State<Emphome> {
                                   applicant_id = peoplist["applicant_id"];
                                 });
 
-                                viewdetails(context);
+                                viewdetails(context,peoplist["category_id"],peoplist["applicant_id"]);
                               } else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -1305,7 +1339,7 @@ class _EmphomeState extends State<Emphome> {
                               applicant_id = peoplist["applicant_id"];
                             });
 
-                            viewdetails(context);
+                            viewdetails(context,peoplist["category_id"],peoplist["applicant_id"]);
                           }
                           // Navigator.pushNamed(context, "de");
 
@@ -1339,48 +1373,55 @@ class _EmphomeState extends State<Emphome> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    key["profile_img"] == "" ?Container(
-                      height: (height/4)/5,
-                      width: (width/3)/3,
-                      decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: AssetImage("assets/place_img.jpeg"),
-                              fit: BoxFit.cover
-                          )
+                InkWell(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>UserProfView(userId: "${key["user_id"]}")));
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      key["profile_img"] == "" ?Container(
+                        height: (height/4)/5,
+                        width: (width/3)/3,
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: AssetImage("assets/place_img.jpeg"),
+                                fit: BoxFit.cover
+                            )
+                        ),
+                      ):Container(
+                        height: (height/4)/5,
+                        width: (width/3)/3,
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                                image: NetworkImage("$photo/${key["profile_img"]}"),
+                                fit: BoxFit.cover
+                            )
+                        ),
                       ),
-                    ):Container(
-                      height: (height/4)/5,
-                      width: (width/3)/3,
-                      decoration: BoxDecoration(
-                          color: Colors.green,
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                              image: NetworkImage("$photo/${key["profile_img"]}"),
-                              fit: BoxFit.cover
-                          )
+                      SizedBox(
+                        width: 16,
                       ),
-                    ),
-                    SizedBox(
-                      width: 16,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(key["user_name"],style: TextStyle(fontWeight: FontWeight.w600),),
-                        Text("Employment : ${key["preference"]}",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 12),),
-                      ],
-                    ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: (width/1.8),
+                              child: Text(key["user_name"],softWrap: true,overflow: TextOverflow.ellipsis,style: TextStyle(fontWeight: FontWeight.w600),)),
+                          Text("Employment : ${key["preference"]}",style: TextStyle(fontWeight: FontWeight.w500,fontSize: 12),),
+                        ],
+                      ),
 
-                  ],
+                    ],
+                  ),
                 ),
                 IconButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PostChat(jobPostId: key["job_seeker_post_id"],name: key["user_name"],profile: key["profile_img"],emp: key["preference"],isEmployer: true,)));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PostChat(jobPostId: key["job_seeker_post_id"],name: key["user_name"],profile: key["profile_img"],emp: key["preference"],isEmployer: true,emp_id: "",)));
                     // iid = peoplist["user_apply_jop_id"];
                     // iddname = peoplist["name"];
                     // iddem = peoplist["confirm_email"];
@@ -1548,7 +1589,7 @@ class _EmphomeState extends State<Emphome> {
     }
   }
 
-  viewdetails(context) async {
+  viewdetails(context,var cate_id,var userid) async {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
     map["user_apply_jop_id"] = iid.toString();
@@ -1564,7 +1605,8 @@ class _EmphomeState extends State<Emphome> {
     var er = jsondata["error"];
     if (res.statusCode == 200) {
       if (er == 0) {
-        Navigator.pushNamed(context, "de");
+        //Navigator.pushNamed(context, "de");
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>De(cate: cate_id,user_id: userid,)));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

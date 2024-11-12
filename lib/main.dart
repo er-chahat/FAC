@@ -75,19 +75,24 @@ import 'package:fac/welcome/yourwork.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'API/firebase_api.dart';
 
 
 var token="";
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp();
+  //await FirebaseApi().initNotifications();
   Stripe.publishableKey = 'pk_live_51OWG8sAGSiZ99v5pu7A4WH6zakJ09HUxk6hDV5titE8VeXmWhJWNzueS1TRbb9YKOxke9FV6eDd7kRnyV0x5QvEw00s8RvVEke';
-  FirebaseMessaging.onBackgroundMessage(backgroundHandler);
+ // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   runApp(
     MultiProvider(
       providers: [
@@ -128,7 +133,7 @@ Future<void> backgroundHandler(RemoteMessage message) async {
 
   // FlutterRingtonePlayer.play(
   //   android: AndroidSound(2), ios: IosSounds.glass,volume: 7);
-   LocalNotificationService.display(message);
+   //LocalNotificationService.display(message);
 
 }
 
@@ -158,7 +163,7 @@ class MyApp extends StatelessWidget {
         "job":(context)=>Job(),
         "edit":(context)=>EditPro(),
         "app":(context)=>Applied(),
-        "de":(context)=>De(),
+        // "de":(context)=>De(),
         "ud":(context)=>Userdrwa(),
         "rjj":(context)=>Recjob(),
         "semp":(context)=>Empss(),

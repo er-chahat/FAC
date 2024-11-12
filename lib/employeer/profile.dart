@@ -23,6 +23,13 @@ class _ProfileState extends State<Profile> {
   List<String> userSkills = [];
   String? locselected;
 
+  String selectedValues = '';
+  late TextEditingController _controller= TextEditingController();
+  List<String> _options =[];
+  List<String>  _option2 =[];
+  String codepin = '';
+  final TextEditingController _serchController = TextEditingController();
+
   List<String> userSkillss = [];
   String? pinselected;
 
@@ -54,6 +61,49 @@ class _ProfileState extends State<Profile> {
 
   File? _image;
   var base64Image;
+
+  searchapi(String value, String? state) async{
+    HashMap<String, dynamic> map = HashMap();
+    map["updte"] = "1";
+    map["state"] = state!;
+    map["city"] = value;
+
+    var res = await http.post(Uri.parse("$mainurl/location_city_search.php"),
+        body: jsonEncode(map));
+    print(res.body);
+    dynamic jsondata = jsonDecode(res.body);
+    print("harleen $map");
+    print(jsondata);
+    var er = jsondata["error"];
+    if (res.statusCode == 200) {
+      print("hello api search data is $jsondata");
+      //List<dynamic> skillsList = jsondata["user_skills"];
+      //           setState(() {
+      //             userSkills = skillsList.map((skill) => skill["state"].toString()).toList();
+      //             locselected=userSkills[0];
+      //           });
+      if(er==0){
+        List<dynamic> all = jsondata["location"] ;
+        setState(() {
+          _options = all.map((alldat)=> alldat["city"].toString()).toList();
+          _option2 = all.map((alldat)=> alldat["pincode"].toString()).toList();
+        });
+      }else{
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Something went worng"),
+            duration: Duration(seconds: 2 ),
+            shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
+          ),
+        );
+      }
+
+    } else {
+      print('error');
+    }
+
+  }
 
   Future imagepicker() async {
     final picker = ImagePicker();
@@ -127,6 +177,19 @@ class _ProfileState extends State<Profile> {
                           borderRadius: BorderRadius.circular(50),
                           child: Image(
                             image: NetworkImage("$photo/$tipp"),
+                            errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200], // Placeholder background color
+                                  borderRadius: BorderRadius.circular(8), // Adjust as needed
+                                ),
+                                child: Icon(
+                                  Icons.photo_library, // Placeholder icon, you can use any icon or asset
+                                  size: 30,
+                                  color: Colors.grey[400],
+                                ),
+                              );
+                            },
                             height: MediaQuery.of(context).size.height * 0.17,
                             width: MediaQuery.of(context).size.width * 0.3,
                             fit: BoxFit.cover,
@@ -163,8 +226,12 @@ class _ProfileState extends State<Profile> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(tiname,style: GoogleFonts.rubik(fontWeight: FontWeight.w600,fontSize: 17),),
-                      Text(tiem,style: GoogleFonts.rubik(color: Colors.grey),),
+                      Container(
+                        width: MediaQuery.of(context).size.width/1.8,
+                          child: Text(tiname,style: GoogleFonts.rubik(fontWeight: FontWeight.w600,fontSize: 17),)),
+                      Container(
+                          width: MediaQuery.of(context).size.width/1.8,
+                          child: Text(tiem,softWrap: true,maxLines: 2,style: GoogleFonts.rubik(color: Colors.grey),)),
                       Text("Australia",style: GoogleFonts.rubik(color: Colors.grey),)
 
                     ],
@@ -477,8 +544,7 @@ class _ProfileState extends State<Profile> {
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding:
-                  EdgeInsets.symmetric(horizontal: 16),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
                   enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.grey), // Set the border color
                     borderRadius: BorderRadius.circular(10),
@@ -507,7 +573,6 @@ class _ProfileState extends State<Profile> {
               SizedBox(height: 5,),
               DropdownButtonFormField(
                 // isDense: true,
-
                 decoration: InputDecoration(
                   filled: true,
                   fillColor: Colors.white,
@@ -558,46 +623,142 @@ class _ProfileState extends State<Profile> {
                 ],
               ),
               SizedBox(height: 5,),
-              DropdownButtonFormField(
-                // isDense: true,
-
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Colors.white,
-                  hintText: "Suburbs",
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
+              Padding(
+                padding: const EdgeInsets.only(left: 8,right: 8),
+                child: Container(
+                  height: 50,
+                  child: TextFormField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      suffixIcon: Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) async {
+                          if (textEditingValue.text.isEmpty) {
+                            return const Iterable<String>.empty();
+                          }
+                          await searchapi(textEditingValue.text, locselected);
+                          return _options;
+                        },
+                        onSelected: (String selection) {
+                          setState(() {
+                            _controller.text = selection;
+                            int index = _options.indexOf(selection);
+                            selectedValues = selection;
+                            codepin = _option2[index];
+                          });
+                          print('You selected: $selection');
+                        },
+                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            style: GoogleFonts.rubik(),
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Colors.white,
+                              contentPadding: EdgeInsets.symmetric(horizontal: 16),
+                              hintText: _controller.text.isNotEmpty?"${_controller.text}":"Search Suburb",
+                              hintStyle: _controller.text.isNotEmpty?GoogleFonts.rubik(color: Colors.black):GoogleFonts.rubik(color: Colors.grey),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(color: Colors.grey),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            onFieldSubmitted: (value) {
+                              onFieldSubmitted();
+                            },
+                          );
+                        },
+                        optionsViewBuilder: (BuildContext context, AutocompleteOnSelected<String> onSelected, Iterable<String> options) {
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: Material(
+                              elevation: 4.0,
+                              child: Container(
+                                height: 200.0,
+                                color: Colors.white,
+                                child: ListView.builder(
+                                  padding: EdgeInsets.all(8.0),
+                                  itemCount: options.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    final String option = options.elementAt(index);
+                                    return GestureDetector(
+                                      onTap: () {
+                                        onSelected(option);
+                                      },
+                                      child: ListTile(
+                                        title: Text("$option (${_option2[index]})"),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  border: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                ),
-                value: pinselected,
-                onChanged: (selectedItem) {
-                  setState(() {
-                    this.pinselected = selectedItem!;
-                  });
-                },
-                items: userSkillss
-                    .map((String item) => DropdownMenuItem(
-                  value: item,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width/2,
-                      child: Text(item,softWrap: true,maxLines: 1,overflow: TextOverflow.ellipsis,)),
-                ))
-                    .toList(),
-                icon: Icon(
-                  Icons.keyboard_arrow_down,
-                  color: Colors.grey,
                 ),
               ),
+              // DropdownButtonFormField(
+              //   // isDense: true,
+              //
+              //   decoration: InputDecoration(
+              //     filled: true,
+              //     fillColor: Colors.white,
+              //     hintText: "Suburbs",
+              //     contentPadding: EdgeInsets.symmetric(horizontal: 16),
+              //     enabledBorder: OutlineInputBorder(
+              //       borderSide: BorderSide(color: Colors.grey),
+              //       borderRadius: BorderRadius.circular(10),
+              //     ),
+              //     focusedBorder: OutlineInputBorder(
+              //       borderSide: BorderSide(color: Colors.grey),
+              //       borderRadius: BorderRadius.circular(10),
+              //     ),
+              //     border: OutlineInputBorder(
+              //       borderSide: BorderSide(color: Colors.grey),
+              //       borderRadius: BorderRadius.circular(10),
+              //     ),
+              //   ),
+              //   value: pinselected,
+              //   onChanged: (selectedItem) {
+              //     setState(() {
+              //       this.pinselected = selectedItem!;
+              //     });
+              //   },
+              //   items: userSkillss
+              //       .map((String item) => DropdownMenuItem(
+              //     value: item,
+              //     child: Container(
+              //       width: MediaQuery.of(context).size.width/2,
+              //         child: Text(item,softWrap: true,maxLines: 1,overflow: TextOverflow.ellipsis,)),
+              //   ))
+              //       .toList(),
+              //   icon: Icon(
+              //     Icons.keyboard_arrow_down,
+              //     color: Colors.grey,
+              //   ),
+              // ),
               SizedBox(
                 height: 10,
               ),
@@ -610,7 +771,7 @@ class _ProfileState extends State<Profile> {
                     style: TextButton.styleFrom(
                         backgroundColor: Color(0xFF118743),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20))),
+                            borderRadius: BorderRadius.circular(10))),
                     onPressed: () {
                       Updatepro(context);
                     },
@@ -648,24 +809,39 @@ class _ProfileState extends State<Profile> {
           emcontroller.text=jsondata["email_id"];
           addrcontroller.text=jsondata["address"];
           print("i after view here ::::::::::::::::::::::::::::::: ::::::::::::::::::::::::::::::::::::: $locselected");
-          if(jsondata["country"]!="")
-            locselected=jsondata["country"];
+          if(jsondata["state"]!="" && jsondata["state"] !=null)
+            locselected=jsondata["state"];
           descontroller.text=jsondata["company_description"];
           dateInput.text=jsondata["established_year"];
           numcontroller.text=jsondata["mobile_number"];
-
           tiname=jsondata["company_name"];
           tiem=jsondata["email_id"];
           tipp=jsondata["profile_image"];
-          print("i am inside view here ::::::::::::::::::::::::::::::: ::::::::::::::::::::::::::::::::::::: ${jsondata["country"]}");
+          print("i am inside view here ::::::::::::::::::::::::::::::: ::::::::::::::::::::::::::::::::::::: ${jsondata["city"]}(${jsondata["pincode"]}");
           // if(jsondata["country"]=="") {
           //   locations(context);
           //   print("hello i am isndie the country locacation api in viewpro :::::::::::");
           // }
-          PinCode(context,jsondata["city"]);
-          if(jsondata["city"] != "") {
-            print("hello i am isndie the country locacation api in viewpro :::::::::::");
-            pinselected = jsondata["city"];
+          print("hello i am inside the api in viewpro ::::::::::: ${locselected} && state is  ${jsondata["country"]}");
+          if(jsondata["state"] != null && jsondata["state"] != "") {
+            if (jsondata["city"] != "" && jsondata["pincode"] != "") {
+              PinCode(context, "${jsondata["city"]}(${jsondata["pincode"]})");
+              print("hello i am inside the api in viewpro ::::::::::: ${locselected} && state is  ${jsondata["state"]}");
+              pinselected = "${jsondata["city"]}(${jsondata["pincode"]})";
+              _controller.text = pinselected!;
+              print("_controller value suburb ${_controller.text}");
+            } else if (jsondata["city"] != "" && jsondata["pincode"] == "") {
+              print("helloit_controlller text is : ${_controller.text}");
+              searchapi("", locselected);
+              PinCode(context, "${jsondata["city"]}");
+            } else {
+              print("helloit_controlller text is athis ${_controller.text}");
+              searchapi("", locselected);
+              PinCode(context, "");
+            }
+          }else{
+            print("hello i am inside the api in viewpro ::::::::::: ${locselected} && state is  ${jsondata["state"]}");
+            PinCode(context, "");
           }
 
 
@@ -700,8 +876,8 @@ class _ProfileState extends State<Profile> {
     map["company_description"] = descontroller.text;
     map["established_year"] = dateInput.text;
     map["address"] = addrcontroller.text;
-    map["country"] = locselected?.toString() ?? "";
-    map["city"] = pinselected?.toString() ?? "";
+    map["state"] = locselected?.toString() ?? "";
+    map["city"] = selectedValues?.toString() ?? "";
 
     if(base64Image==""||base64Image==null){
       map["profile_img"]="";
@@ -792,6 +968,7 @@ class _ProfileState extends State<Profile> {
             locselected=userSkills[0];
             print("i harleen here ::::::::::::::::::::::::::::::: ::::::::::::::::::::::::::::::::::::: $locselected");
             viewpro(context);
+
           });
 
         }
@@ -817,7 +994,7 @@ class _ProfileState extends State<Profile> {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
     map["state"]=locselected.toString();
-
+    print("hwllo its your fist time ${locselected}");
     var res = await http.post(
         Uri.parse("$mainurl/location_city_pincode_list.php"),
         body: jsonEncode(map));
@@ -828,14 +1005,23 @@ class _ProfileState extends State<Profile> {
       print(jsondata);
       if (er == 0) {
         setState(() {
+          print("hwllo its your fist time ${jsondata}");
           if (jsondata.containsKey("user_skills")) {
             List<dynamic> skillsList = jsondata["user_skills"];
             userSkillss = skillsList.map((skill) => "${skill["city"]}(${skill["pincode"]})").toList();
             pinselected=userSkillss[0];
+            _controller.text = pinselected!;
+            print("helloit_controlller text is : ${_controller.text}");
+            print("user skilll pin i s $userSkillss");
+            print("user skilll pin i s $pin");
             print("your locselected ::::::: $pinselected");
             if(pin !=""){
-              pinselected=pin;
+              print("uour pin is $pin");
+              pinselected="$pin";
+              print("helloit_controlller text is : ${_controller.text}");
+              _controller.text= "$pin";
             }
+
           }
         });
         print("pincodes************: $userSkillss");

@@ -7,14 +7,16 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart'as http;
 import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:table_calendar/table_calendar.dart';
+//import 'package:table_calendar/table_calendar.dart';
 
 import '../starting/splashscreen.dart';
 import 'event.dart';
 
 class TimeSlots extends StatefulWidget {
-  final Function(String,String) callback;
-  TimeSlots({required this.callback});
+  var emp_id;
+  var status_id;
+  final Function(String,String,String) callback;
+  TimeSlots({required this.callback,required this.emp_id,required this.status_id});
 
   @override
   State<TimeSlots> createState() => _TimeSlotsState();
@@ -22,7 +24,7 @@ class TimeSlots extends StatefulWidget {
 
 class _TimeSlotsState extends State<TimeSlots> {
 
-  CalendarFormat _format =CalendarFormat.month;
+  //CalendarFormat _format =CalendarFormat.month;
 
   late CalendarController _controller;
   late Map<DateTime, List<dynamic>> _events;
@@ -55,7 +57,7 @@ class _TimeSlotsState extends State<TimeSlots> {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
     map["select_date"] = data_selected;
-    map["user_id"]= user_id.toString();
+    map["user_id"]= "${widget.emp_id}";
 
 
     // if(selectedStatus=="Interview")
@@ -116,7 +118,7 @@ class _TimeSlotsState extends State<TimeSlots> {
   weekOnOff() async {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
-    map["user_id"]= user_id.toString();
+    map["user_id"]= "${widget.emp_id}";
 
 
     // if(selectedStatus=="Interview")
@@ -166,7 +168,7 @@ class _TimeSlotsState extends State<TimeSlots> {
   daybooked(int month) async {
     HashMap<String, String> map = HashMap();
     map["updte"] = "1";
-    map["user_id"]= user_id.toString();
+    map["user_id"]= "${widget.emp_id}";
     map["month"]= "$month";
 
     // if(selectedStatus=="Interview")
@@ -250,7 +252,7 @@ class _TimeSlotsState extends State<TimeSlots> {
           SizedBox(
             height: 10,
           ),
-          timeSlot==null?Center(child: CircularProgressIndicator(color: Colors.green.shade500,)):timeSlot.length==0? Column(
+          timeSlot==null?Center(child: CircularProgressIndicator(color: Color(0xFF118743),)):timeSlot.length==0? Column(
             children: [
               Center(child: Text("Office is Closed",style: TextStyle(fontWeight: FontWeight.w500),)),
             ],
@@ -302,7 +304,7 @@ class _TimeSlotsState extends State<TimeSlots> {
                         decoration: BoxDecoration(
                             border: Border.all(width: 0.2,color: Colors.black),
                             borderRadius: BorderRadius.circular(10),
-                            color: timeSlot[index]["slot_available"]=="Slot Not available"?Colors.white:Colors.green.shade200
+                            color: timeSlot[index]["slot_available"]=="Slot Not available"?Colors.white:Color(0xFF118743)
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(2.0),
@@ -329,6 +331,8 @@ class _TimeSlotsState extends State<TimeSlots> {
 
     );
   }
+
+
 
   void openHere(var selDate,var timeSlot) => showDialog(
       context: context,
@@ -372,8 +376,7 @@ class _TimeSlotsState extends State<TimeSlots> {
                         setState(() {
                           Navigator.pop(context);
                           Navigator.pop(context);
-
-                          widget.callback(selDate,timeSlot);
+                          widget.callback(selDate,timeSlot,"${widget.status_id}");
                           //_time.text = "${timeSlot[index]["slots_timing"] ?? ""}";
                         });
                       },
@@ -390,67 +393,67 @@ class _TimeSlotsState extends State<TimeSlots> {
           )
         ],
       ));
-  Widget _tableCalender(){
-    return ExpansionTile(
-      title: _isExpanded==false?Text('Open Calendar'):Text('Close Calendar'), // Title for the panel when collapsed
-      backgroundColor: Colors.white,
-      initiallyExpanded: _isExpanded, // Initially expanded or collapsed based on the state
-      onExpansionChanged: (expanded) { // Callback when the panel's expansion state changes
-        setState(() {
-          _isExpanded = expanded; // Update the expansion state
-        });
-      },
-      children: [
-        TableCalendar(
-          focusedDay: _focusDay,
-          firstDay: DateTime.now(),
-          lastDay: DateTime(2025,12,31),
-          calendarFormat: _format,
-          currentDay: _currentDay,
-          rowHeight: 48,
-          calendarStyle: const CalendarStyle(
-            todayDecoration: BoxDecoration(
-                color: Colors.green,
-                shape: BoxShape.circle
-            ),
-          ),
-          availableCalendarFormats: const {
-            CalendarFormat.month:'Month',
-          },
-          onFormatChanged: (format){
-            setState(() {
-              _format=format;
-              print("hello its date formated ::::$_format");
-            });
-          },
-          // eventLoader: (day) {
-          //   // Replace this with your logic to load booked slots events for the given day from your API
-          //   final List<dynamic> bookedSlots = fetchBookedSlotsForDay(day); // Function to fetch booked slots for the day
-          //   return bookedSlots.map((slot) => Event(date: slot)).toList();
-          // },
-          onDaySelected: ((selectedDay , focusedDay){
-            setState(() {
-              _currentDay=selectedDay;
-              _focusDay=focusedDay;
-              _dateSelected=true;
-              String selctedDate =DateFormat('yyyy-MM-dd').format(_currentDay);
-              print("current dat ao f ${_currentDay}");
-              timeSlots(selctedDate);
-              print("hello selected items ::::::${DateFormat('yyyy-MM-dd').format(_currentDay)} $selctedDate , $selectedDay");
-              //check if wweekend is selected
-              if(selectedDay.weekday==6 || selectedDay.weekday == 7){
-                _isWeekend=true;
-                _timeSelected=false;
-                currentIndex=null;
-              }else{
-                _isWeekend=false;
-              }
-            });
-          }),
-        ),
-      ],
-    );
-  }
+  // Widget _tableCalender(){
+  //   return ExpansionTile(
+  //     title: _isExpanded==false?Text('Open Calendar'):Text('Close Calendar'), // Title for the panel when collapsed
+  //     backgroundColor: Colors.white,
+  //     initiallyExpanded: _isExpanded, // Initially expanded or collapsed based on the state
+  //     onExpansionChanged: (expanded) { // Callback when the panel's expansion state changes
+  //       setState(() {
+  //         _isExpanded = expanded; // Update the expansion state
+  //       });
+  //     },
+  //     children: [
+  //       TableCalendar(
+  //         focusedDay: _focusDay,
+  //         firstDay: DateTime.now(),
+  //         lastDay: DateTime(2025,12,31),
+  //         calendarFormat: _format,
+  //         currentDay: _currentDay,
+  //         rowHeight: 48,
+  //         calendarStyle: const CalendarStyle(
+  //           todayDecoration: BoxDecoration(
+  //               color: Colors.green,
+  //               shape: BoxShape.circle
+  //           ),
+  //         ),
+  //         availableCalendarFormats: const {
+  //           CalendarFormat.month:'Month',
+  //         },
+  //         onFormatChanged: (format){
+  //           setState(() {
+  //             _format=format;
+  //             print("hello its date formated ::::$_format");
+  //           });
+  //         },
+  //         // eventLoader: (day) {
+  //         //   // Replace this with your logic to load booked slots events for the given day from your API
+  //         //   final List<dynamic> bookedSlots = fetchBookedSlotsForDay(day); // Function to fetch booked slots for the day
+  //         //   return bookedSlots.map((slot) => Event(date: slot)).toList();
+  //         // },
+  //         onDaySelected: ((selectedDay , focusedDay){
+  //           setState(() {
+  //             _currentDay=selectedDay;
+  //             _focusDay=focusedDay;
+  //             _dateSelected=true;
+  //             String selctedDate =DateFormat('yyyy-MM-dd').format(_currentDay);
+  //             print("current dat ao f ${_currentDay}");
+  //             timeSlots(selctedDate);
+  //             print("hello selected items ::::::${DateFormat('yyyy-MM-dd').format(_currentDay)} $selctedDate , $selectedDay");
+  //             //check if wweekend is selected
+  //             if(selectedDay.weekday==6 || selectedDay.weekday == 7){
+  //               _isWeekend=true;
+  //               _timeSelected=false;
+  //               currentIndex=null;
+  //             }else{
+  //               _isWeekend=false;
+  //             }
+  //           });
+  //         }),
+  //       ),
+  //     ],
+  //   );
+  // }
   Widget _cleanCalender(){
     return Container(
 
@@ -490,27 +493,27 @@ class _TimeSlotsState extends State<TimeSlots> {
         },
         weekdaysProperties: WeekdaysProperties(
             mondayDecoration: WeekdaysDecoration(
-                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["monday"]=="On"?Colors.black: Colors.green
+                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["monday"]=="On"?Colors.black: Color(0xFF118743)
             ),
             tuesdayDecoration: WeekdaysDecoration(
-                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["tuesday"]=="On"?Colors.black: Colors.green
+                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["tuesday"]=="On"?Colors.black: Color(0xFF118743)
             ),
             wednesdayDecoration: WeekdaysDecoration(
-                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["wednesday"]=="On"?Colors.black: Colors.green
+                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["wednesday"]=="On"?Colors.black: Color(0xFF118743)
             ),
             thursdayDecoration: WeekdaysDecoration(
-                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["thursday"]=="On"?Colors.black: Colors.green
+                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["thursday"]=="On"?Colors.black: Color(0xFF118743)
             ),
             fridayDecoration: WeekdaysDecoration(
-                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["friday"]=="On"?Colors.black: Colors.green
+                weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["friday"]=="On"?Colors.black: Color(0xFF118743)
             ),
             generalWeekdaysDecoration:
             WeekdaysDecoration(weekdayTextColor: Colors.black),
             sundayDecoration: WeekdaysDecoration(
-              weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["sunday"]=="On"?Colors.black: Colors.green,
+              weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["sunday"]=="On"?Colors.black: Color(0xFF118743),
             ),
             saturdayDecoration: WeekdaysDecoration(
-              weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["saturday"]=="On"?Colors.black: Colors.green,
+              weekdayTextColor: weekOffOn == null?Colors.black:weekOffOn["saturday"]=="On"?Colors.black: Color(0xFF118743),
               // weekdayTextStyle:
               // Theme.of(context).textTheme.headlineMedium),
             )
@@ -520,7 +523,7 @@ class _TimeSlotsState extends State<TimeSlots> {
         currentDateProperties: DatesProperties(
           datesDecoration: DatesDecoration(
             datesBorderRadius: 1000,
-            datesBackgroundColor: Colors.green,
+            datesBackgroundColor: Color(0xFF118743),
             datesBorderColor: Colors.green,
             datesTextColor: Colors.white,
           ),
