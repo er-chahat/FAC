@@ -91,7 +91,6 @@ Future<void> main() async{
   await dotenv.load(fileName: ".env");
   await Firebase.initializeApp();
   //await FirebaseApi().initNotifications();
-  Stripe.publishableKey = 'pk_live_51OWG8sAGSiZ99v5pu7A4WH6zakJ09HUxk6hDV5titE8VeXmWhJWNzueS1TRbb9YKOxke9FV6eDd7kRnyV0x5QvEw00s8RvVEke';
  // FirebaseMessaging.onBackgroundMessage(backgroundHandler);
   runApp(
     MultiProvider(
